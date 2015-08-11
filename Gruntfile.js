@@ -8,9 +8,9 @@ module.exports = function (grunt) {
                 src: 'src/templates/**.html',
                 dest: 'tmp/templates.js',
                 htmlmin: {
-                    collapseBooleanAttributes:      true,
-                    collapseWhitespace:             true,
-                    removeComments:                 true
+                    collapseBooleanAttributes: true,
+                    collapseWhitespace: true,
+                    removeComments: true
                 }
             }
         },
@@ -19,8 +19,14 @@ module.exports = function (grunt) {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
-                src: ['src/js/auth.mod.js','src/js/auth.svc.js','src/js/auth.ctrl.js','tmp/templates.js'],
+                src: ['src/js/auth.mod.js', 'src/js/auth.svc.js', 'src/js/auth.ctrl.js', 'src/js/auth.dir.js', 'tmp/templates.js'],
                 dest: 'dist/ngcrud-auth.min.js'
+            }
+        },
+        concat: {
+            dist: {
+                src: ['src/js/auth.mod.js', 'src/js/auth.svc.js', 'src/js/auth.ctrl.js', 'src/js/auth.dir.js', 'tmp/templates.js'],
+                dest: '../ShoppingCart/ShoppingCart/MPShoppingCart.web/src/main/webapp/src/shared/js/ngcrud-auth.min.js'
             }
         }
     });
@@ -29,6 +35,10 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
+    grunt.loadNpmTasks('grunt-contrib-concat');
+
     grunt.registerTask('default', ['ngtemplates', 'uglify']);
+
+    grunt.registerTask('dev', ['ngtemplates', 'concat']);
 
 };

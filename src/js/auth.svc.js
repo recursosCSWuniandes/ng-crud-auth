@@ -6,52 +6,66 @@
 (function (ng) {
 
     var mod = ng.module('authModule');
-    mod.provider('auth', function () {
+
+    mod.provider('authService', function () {
 
         //Default
-        this.values = {
+        var values = {
             apiUrl: 'users',
             successPath: '/product',
             loginPath: '/login',
-            registerPath: '/register'
+            registerPath: '/register',
+            logoutRedirect: '/login'
         };
 
-        this.$get = ['Restangular', '$cookies', function (RestAngular, $cookies) {
-                var self = this;
-                var values = this.values;
-                this.api = RestAngular.all(values.apiUrl);
-                return {
-                    login: function (user) {
-                        return self.api.customPOST(user, 'login');
-                    },
-                    getConf: function () {
-                        return values;
-                    },
-                    logout: function () {
-                        return self.api.customGET('logout');
-                    },
-                    register: function (user) {
-                        return self.api.customPOST(user, 'register');
-                    },
-                    getCurrentUser: function () {
-                        var jsession = $cookies.getObject('user');
-                        if (jsession) {
-                            return {id: jsession.id, name: jsession.userName};
-                        } else {
-                            return null;
-                        }
-                    }
-
-                };
-            }];
-
         this.setValues = function (values) {
-            this.values = values;
+            values = values;
         };
 
         this.getValues = function () {
-            return this.values;
+            return values;
         };
+
+        this.$get = ['Restangular', '$cookies', '$location', function (RestAngular, $cookies, $location) {
+            var self = this;
+            this.api = RestAngular.all(values.apiUrl);
+            return {
+                login: function (user) {
+                    return self.api.customPOST(user, 'login').then(function (data) {
+                        $cookies.putObject('user', {userName: data.name, id: data.id});
+                        $location.path(values.successPath);
+                    });
+                },
+                getConf: function () {
+                    return values;
+                },
+                logout: function () {
+                    return self.api.customGET('logout').then(function () {
+                        $cookies.remove('user');
+                        $location.path(values.logoutRedirect);
+                    });
+                },
+                register: function (user) {
+                    return self.api.customPOST(user, 'register').then(function (data) {
+                        $location.path(values.loginPath);
+                    });
+                },
+                registration: function () {
+                    $location.path(values.registerPath);
+                },
+                getCurrentUser: function () {
+                    var jsession = $cookies.getObject('user');
+                    if (jsession) {
+                        return {id: jsession.id, name: jsession.userName};
+                    } else {
+                        return null;
+                    }
+                },
+                goToLogin: function () {
+                    $location.path(values.loginPath);
+                }
+            };
+        }];
     });
 })(window.angular);
 

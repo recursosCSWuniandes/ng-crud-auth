@@ -7,51 +7,60 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', '$location','auth', 'defaultStatus',function ($scope, $cookies, $location, authProvider, defaultStatus) {
+    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus', function ($scope, $cookies, $location, authSvc, defaultStatus) {
+        this.errorctrl = defaultStatus;
+        $scope.isAuthenticated = function(){
+            return !!authSvc.getCurrentUser();
+        };
+
+        $scope.currentUser = function(){
+            var user = authSvc.getCurrentUser();
+            return user && user.name;
+        };
+        this.login = function (user) {
             var self = this;
+            if (user && user.userName && user.password) {
+                authSvc.login(user).then(function (data) {
+                    console.log("success", data);
+                }, function (data) {
+                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
+                });
+            }
+        };
+
+        $scope.logout = function () {
+            authSvc.logout();
+        };
+
+        this.close = function () {
             this.errorctrl = defaultStatus;
-            this.valuesConf = authProvider.getConf();
-            this.login = function (user) {
-                if (user && user.password) {
-                    authProvider.login(user).then(function (data) {
-                        var user = {userName: data.name, id: data.id};
-                        $cookies.putObject('user', user);
-                        $location.path(self.valuesConf.successPath);//gallery
-                    }, function (error) {
-                        self.errorctrl = {status: true, type: "danger", msg: error.data};
-                    });
-                }
-            };
+        };
 
-            this.close = function () {
-                self.errorctrl = defaultStatus;
-            };
+        this.registration = function () {
+            authSvc.registration();
+        };
 
-            this.registration = function () {
-                $location.path(self.valuesConf.registerPath);
-            };
-            
-            this.register = function (newUser) {
-                if (newUser.password !== newUser.confirmPassword) {
-                    self.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
-                } else {
-                    authProvider.register(newUser).then(function () {
-                        $location.path(self.valuesConf.loginPath);
-                    }, function (error) {
-                        self.errorctrl = {status: true, type: "danger", msg: ":" + error.data};
-                    });
-                }
+        this.register = function (newUser) {
+            if (newUser.password !== newUser.confirmPassword) {
+                this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
+            } else {
+                authSvc.register(newUser).then(function (data) {
+                    console.log("success", data)
+                }, function (data) {
+                    console.log("error", data);
+                    //self.errorctrl = {status: true, type: "danger", msg: ":" + error.data};
+                });
+            }
+        };
 
-            };
-            
-            this.goBack = function(){
-              $location.path(self.valuesConf.loginPath);  
-            };
-            
+        $scope.goToLogin = function () {
+            authSvc.goToLogin();
+        };
 
-
-
-        }]);
+        this.goBack = function () {
+            //$location.path(self.valuesConf.loginPath);
+        };
+    }]);
 
 })(window.angular);
 
