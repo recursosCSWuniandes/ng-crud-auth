@@ -1,8 +1,5 @@
 
-
-
-<div class="row">
-    <style>div{padding-top:10px;}</style>
+<div>
     <div class="col-md-5 col-md-offset-4">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -13,7 +10,7 @@
                         <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}
                     </div>
                 </div>
-            </div>         
+            </div>
             <div class="panel-body">
                 <form name="loginform" accept-charset="UTF-8" role="form">
                     <div class="form-group">
@@ -36,7 +33,7 @@
                     </div>
                     <input class="btn btn-lg btn-primary btn-block" ng-click="authCtrl.register(user)" type="submit" value="Register">
                     <input class="btn btn-lg btn-default btn-block" ng-click="authCtrl.goBack()" type="submit" value="Go Back">
-                </form>  
+                </form>
             </div>
         </div>
     </div>
