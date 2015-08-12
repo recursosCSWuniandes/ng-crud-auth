@@ -9,9 +9,7 @@
     
     mod.directive('loginButton',[function(){
         return {
-            scope:{
-                isAuthenticate: '='
-            },
+            scope:{},
             restrict: 'E',
             templateUrl: 'src/templates/button.html',
             controller: 'authController'
