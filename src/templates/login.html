@@ -1,11 +1,5 @@
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<div class="row">
-    <style>div{padding-top:10px;}</style>
+
+<div>
     <div class="col-md-5 col-md-offset-4">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -16,7 +10,7 @@ and open the template in the editor.
                         <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}
                     </div>
                 </div>
-            </div>         
+            </div>
             <div class="panel-body">
                 <form name="loginform" accept-charset="UTF-8" role="form">
                         <div class="form-group">
@@ -32,7 +26,7 @@ and open the template in the editor.
                         </div>
                         <input class="btn btn-lg btn-success btn-block" ng-click="authCtrl.login(user)" type="submit" value="Login">
                 </form>
-                <button class="btn btn-lg btn-default btn-block" ng-click="authCtrl.registration()">Register</button>  
+                <button class="btn btn-lg btn-default btn-block" ng-click="authCtrl.registration()">Register</button>
             </div>
         </div>
     </div>
