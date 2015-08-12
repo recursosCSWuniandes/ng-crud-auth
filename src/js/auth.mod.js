@@ -11,6 +11,19 @@
     mod.config(['RestangularProvider', function (rp) {
             rp.setBaseUrl('webresources');
         }]);
+    mod.config(['$routeProvider', function ($routeProvider) {
+        $routeProvider
+            .when('/login', {
+                templateUrl: 'src/templates/login.html',
+                controller: 'authController',
+                controllerAs: 'authCtrl'
+            })
+            .when('/register', {
+                templateUrl: 'src/templates/register.html',
+                controller: 'authController',
+                controllerAs: 'authCtrl'
+            });
+    }]);
 
 })(window.angular);
 
