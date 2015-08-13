@@ -3,15 +3,40 @@ module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        concat: {
+            dist: {
+                src: '<%= concat.dev.src %>',
+                dest: 'tmp/ngcrud-auth.js'
+            },
+            dev: {
+                src: [
+                    'src/js/auth.mod.js',
+                    'src/js/auth.svc.js',
+                    'src/js/auth.ctrl.js',
+                    'src/js/auth.dir.js'
+                ],
+                dest: '../ShoppingCart/ShoppingCart/MPShoppingCart.web/src/main/webapp/src/shared/js/ngcrud-auth.min.js'
+            }
+        },
         ngtemplates: {
-            authModule: {
-                src: 'src/templates/**.html',
-                dest: 'tmp/templates.js',
-                htmlmin: {
-                    collapseBooleanAttributes: true,
-                    collapseWhitespace: true,
-                    removeComments: true
+            options: {
+                module: 'authModule',
+                append: true
+            },
+            dist: {
+                src: '<%= ngtemplates.dev.src %>',
+                dest: '<%= concat.dist.dest %>',
+                options: {
+                    htmlmin: {
+                        collapseBooleanAttributes: true,
+                        collapseWhitespace: true,
+                        removeComments: true
+                    }
                 }
+            },
+            dev: {
+                src: 'src/templates/**.html',
+                dest: '<%= concat.dev.dest %>'
             }
         },
         uglify: {
@@ -19,14 +44,8 @@ module.exports = function (grunt) {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
-                src: ['src/js/auth.mod.js', 'src/js/auth.svc.js', 'src/js/auth.ctrl.js', 'src/js/auth.dir.js', 'tmp/templates.js'],
+                src: '<%= concat.dev.dest %>',
                 dest: 'dist/ngcrud-auth.min.js'
-            }
-        },
-        concat: {
-            dist: {
-                src: ['src/js/auth.mod.js', 'src/js/auth.svc.js', 'src/js/auth.ctrl.js', 'src/js/auth.dir.js', 'tmp/templates.js'],
-                dest: '../ShoppingCart/ShoppingCart/MPShoppingCart.web/src/main/webapp/src/shared/js/ngcrud-auth.min.js'
             }
         }
     });
@@ -37,8 +56,8 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-concat');
 
-    grunt.registerTask('default', ['ngtemplates', 'uglify']);
+    grunt.registerTask('default', ['concat:dist', 'ngtemplates:dist', 'uglify']);
 
-    grunt.registerTask('dev', ['ngtemplates', 'concat']);
+    grunt.registerTask('dev', ['concat:dev', 'ngtemplates:dev']);
 
 };
