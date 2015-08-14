@@ -15,7 +15,7 @@ module.exports = function (grunt) {
                     'src/js/auth.ctrl.js',
                     'src/js/auth.dir.js'
                 ],
-                dest: '../ShoppingCart/ShoppingCart/MPShoppingCart.web/src/main/webapp/src/shared/js/ngcrud-auth.min.js'
+                dest: '../mp-books/MarketPlace.web/src/main/webapp/src/utils/ngcrud-auth.min.js'
             }
         },
         ngtemplates: {
