@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -41,17 +41,18 @@
         };
 
         this.register = function (newUser) {
+            var self = this;
             if (newUser.password !== newUser.confirmPassword) {
                 this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
             } else {
                 authSvc.register(newUser).then(function (data) {
-                    console.log("success", data)
+                    self.errorctrl = {status: true, type: "success", msg: ":" + " User registered successfully"};
                 }, function (data) {
-                    console.log("error", data);
-                    //self.errorctrl = {status: true, type: "danger", msg: ":" + error.data};
+                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                 });
             }
         };
+
 
         $scope.goToLogin = function () {
             authSvc.goToLogin();
