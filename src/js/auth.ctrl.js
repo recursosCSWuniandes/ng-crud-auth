@@ -59,7 +59,7 @@
         };
 
         this.goBack = function () {
-            //$location.path(self.valuesConf.loginPath);
+            authSvc.goToBack();
         };
     }]);
 
