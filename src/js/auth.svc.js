@@ -24,7 +24,7 @@
         };
 
         this.setValues = function (newValues) {
-            values = newValues;
+            values = ng.extend(values, newValues);
         };
 
         this.getValues = function () {
