@@ -19,8 +19,8 @@
             loginURL: 'login',
             registerURL: 'register',
             logoutURL: 'logout',
-            nameCookie: 'user'
-
+            nameCookie: 'user',
+            forbiddenPath: '/forbidden'
         };
 
         this.setValues = function (newValues) {
@@ -74,6 +74,9 @@
                 },
                 goToSuccess: function () {
                     $location.path(values.successPath);
+                },
+                goToForbidden: function(){
+                    $location.path(values.forbiddenPath);
                 }
             };
         }];
