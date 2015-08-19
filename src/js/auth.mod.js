@@ -25,6 +25,16 @@
             });
     }]);
 
+    mod.run(['Restangular', 'authService', function (restangular, auth) {
+        restangular.setErrorInterceptor(function(resp){
+            if (resp.status === 401) {
+                auth.goToLogin();
+                return false;
+            }
+            return true;
+        });
+    }]);
+
 })(window.angular);
 
 

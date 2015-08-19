@@ -44,7 +44,7 @@ module.exports = function (grunt) {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
-                src: '<%= concat.dev.dest %>',
+                src: '<%= concat.dist.dest %>',
                 dest: 'dist/ngcrud-auth.min.js'
             }
         }
