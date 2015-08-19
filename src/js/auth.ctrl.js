@@ -61,6 +61,10 @@
         this.goBack = function () {
             authSvc.goToBack();
         };
+
+        $scope.goToSuccess = function(){
+            authSvc.goToSuccess();
+        };
     }]);
 
 })(window.angular);

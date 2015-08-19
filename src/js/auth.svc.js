@@ -71,6 +71,9 @@
                 },
                 goToBack: function () {
                     $location.path(values.loginPath);
+                },
+                goToSuccess: function () {
+                    $location.path(values.successPath);
                 }
             };
         }];
