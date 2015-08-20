@@ -1,18 +1,18 @@
-
 <div>
     <div class="col-md-5 col-md-offset-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Please Login</h3>
-                <div class="col-md-12" ng-show="authCtrl.errorctrl.status" ng-message="show">
-                    <div class="alert alert-{{authCtrl.errorctrl.type}}" role="alert">
-                        <button type="button" class="close" ng-click="authCtrl.close()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}
-                    </div>
-                </div>
+        <div class="col-md-12" ng-show="authCtrl.errorctrl.status" ng-message="show">
+            <div class="alert alert-{{authCtrl.errorctrl.type}}" role="alert">
+                <button type="button" class="close" ng-click="authCtrl.close()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}
             </div>
-            <div class="panel-body">
-                <form name="loginform" accept-charset="UTF-8" role="form">
+        </div>
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Please Login</h3>
+                </div>
+                <div class="panel-body">
+                    <form name="loginform" accept-charset="UTF-8" role="form">
                         <div class="form-group">
                             <input class="form-control" required ng-model="user.userName" placeholder="Username or Email" name="username" type="text">
                         </div>
@@ -25,8 +25,9 @@
                             </label>
                         </div>
                         <input class="btn btn-lg btn-success btn-block" ng-click="authCtrl.login(user)" type="submit" value="Login">
-                </form>
-                <button class="btn btn-lg btn-default btn-block" ng-click="authCtrl.registration()">Register</button>
+                    </form>
+                    <button class="btn btn-lg btn-default btn-block" ng-click="authCtrl.registration()">Register</button>
+                </div>
             </div>
         </div>
     </div>
