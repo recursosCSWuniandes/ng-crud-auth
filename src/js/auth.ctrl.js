@@ -14,6 +14,12 @@
             return !!authSvc.getCurrentUser();
         };
 
+        $scope.user = {};
+        for(var att in $scope.roles){
+            $scope.user.role = att;
+            break;
+        }
+
         $scope.currentUser = function(){
             var user = authSvc.getCurrentUser();
             return user && user.name;
@@ -31,6 +37,10 @@
 
         $scope.logout = function () {
             authSvc.logout();
+        };
+
+        $scope.log = function(obj){
+            console.log(obj);
         };
 
         this.close = function () {
