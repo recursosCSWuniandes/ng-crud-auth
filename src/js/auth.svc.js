@@ -25,7 +25,7 @@
 
         //Default Roles
         var roles = {
-            'user': 'User',
+            'user': 'Client',
             'provider': 'Provider'
         };
 
