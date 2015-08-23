@@ -9,6 +9,7 @@
 
     mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus', function ($scope, $cookies, $location, authSvc, defaultStatus) {
         this.errorctrl = defaultStatus;
+        $scope.roles = authSvc.getRoles();
         $scope.isAuthenticated = function(){
             return !!authSvc.getCurrentUser();
         };
