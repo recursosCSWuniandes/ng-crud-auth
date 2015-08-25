@@ -23,6 +23,12 @@
             forbiddenPath: '/forbidden'
         };
 
+        //Default Roles
+        var roles = {
+            'user': 'Client',
+            'provider': 'Provider'
+        };
+
         this.setValues = function (newValues) {
             values = ng.extend(values, newValues);
         };
@@ -31,10 +37,21 @@
             return values;
         };
 
+        this.getRoles = function(){
+            return roles;
+        };
+
+        this.setRoles = function(newRoles){
+            roles = newRoles;
+        };
+
         this.$get = ['Restangular', '$cookies', '$location', function (RestAngular, $cookies, $location) {
             var self = this;
             this.api = RestAngular.all(values.apiUrl);
             return {
+                getRoles: function(){
+                    return roles;
+                },
                 login: function (user) {
                     return self.api.customPOST(user, values.loginURL).then(function (data) {
                         $cookies.putObject(values.nameCookie, {userName: data.name, id: data.id});
