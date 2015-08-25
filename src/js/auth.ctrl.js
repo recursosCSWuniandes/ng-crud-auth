@@ -9,9 +9,16 @@
 
     mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus', function ($scope, $cookies, $location, authSvc, defaultStatus) {
         this.errorctrl = defaultStatus;
+        $scope.roles = authSvc.getRoles();
         $scope.isAuthenticated = function(){
             return !!authSvc.getCurrentUser();
         };
+
+        $scope.user = {};
+        for(var att in $scope.roles){
+            $scope.user.role = att;
+            break;
+        }
 
         $scope.currentUser = function(){
             var user = authSvc.getCurrentUser();
@@ -30,6 +37,10 @@
 
         $scope.logout = function () {
             authSvc.logout();
+        };
+
+        $scope.log = function(obj){
+            console.log(obj);
         };
 
         this.close = function () {
