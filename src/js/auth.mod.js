@@ -2,9 +2,7 @@
 
     var mod = ng.module('authModule', ['restangular', 'ngCookies', 'ngRoute']);
     mod.constant('defaultStatus', {status: false});
-    mod.config(['RestangularProvider', function (rp) {
-        rp.setBaseUrl('webresources');
-    }]);
+
     mod.config(['$routeProvider', 'authServiceProvider', function ($routeProvider, auth) {
         var authConfig = auth.getValues();
         $routeProvider
@@ -25,7 +23,15 @@
             });
     }]);
 
-    mod.run(['Restangular', 'authService', function (restangular, auth) {
+    mod.run(['$httpProvider', 'authService', '$log', function ($httpProvider, auth, $log) {
+        $httpProvider.interceptors.push(['$q', function ($q) {
+            return {
+                'responseError': function (rejection) {
+                    $log.debug(rejection);
+                    return $q.reject(a);
+                }
+            }
+        }]);
         restangular.setErrorInterceptor(function (resp) {
             if (resp.status === 401) {
                 auth.goToLogin();
@@ -37,7 +43,6 @@
             return true;
         });
     }]);
-
 })(window.angular);
 
 

@@ -11,6 +11,7 @@
 
         //Default
         var values = {
+            prefix: 'webresources',
             apiUrl: 'users',
             successPath: '/product',
             loginPath: '/login',
