@@ -23,8 +23,8 @@
             });
     }]);
 
-    mod.config(['$httpProvider', 'authService', '$log', function ($httpProvider, auth, $log) {
-        $httpProvider.interceptors.push(['$q', function ($q) {
+    mod.config(['$httpProvider', function ($httpProvider) {
+        $httpProvider.interceptors.push(['$q', '$log', function ($q, $log) {
             return {
                 'responseError': function (rejection) {
                     $log.debug(rejection);
