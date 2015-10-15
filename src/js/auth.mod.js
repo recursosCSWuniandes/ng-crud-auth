@@ -28,7 +28,7 @@
             return {
                 'responseError': function (rejection) {
                     $log.debug(rejection);
-                    return $q.reject(a);
+                    return $q.reject(rejection);
                 }
             };
         }]);
