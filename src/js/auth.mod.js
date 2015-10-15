@@ -30,7 +30,7 @@
                     $log.debug(rejection);
                     return $q.reject(a);
                 }
-            }
+            };
         }]);
         restangular.setErrorInterceptor(function (resp) {
             if (resp.status === 401) {
