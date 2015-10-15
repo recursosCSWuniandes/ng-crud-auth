@@ -23,17 +23,17 @@
             });
     }]);
 
-    mod.config(['$httpProvider', function ($httpProvider) {
-        $httpProvider.interceptors.push(['$q', '$log', 'authService', function ($q, $log, auth) {
+    mod.config(['$httpProvider', 'authServiceProvider', function ($httpProvider, authServiceProvider) {
+        $httpProvider.interceptors.push(['$q', '$log', '$location', function ($q, $log, $location) {
             return {
                 'responseError': function (rejection) {
                     if(rejection.status === 401){
                         $log.debug('error 401', rejection);
-                        auth.goToLogin();
+                        $location.path(authServiceProvider.getValues().loginPath);
                     }
                     if(rejection.status === 403){
                         $log.debug('error 403', rejection);
-                        auth.goToForbidden();
+                        $location.path(authServiceProvider.getValues().forbiddenPath);
                     }
                     return $q.reject(rejection);
                 }
