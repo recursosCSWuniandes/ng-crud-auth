@@ -24,10 +24,17 @@
     }]);
 
     mod.config(['$httpProvider', function ($httpProvider) {
-        $httpProvider.interceptors.push(['$q', '$log', function ($q, $log) {
+        $httpProvider.interceptors.push(['$q', '$log', 'authService', function ($q, $log, auth) {
             return {
                 'responseError': function (rejection) {
-                    $log.debug(rejection);
+                    if(rejection.status === 401){
+                        $log.debug('error 401', rejection);
+                        auth.goToLogin();
+                    }
+                    if(rejection.status === 403){
+                        $log.debug('error 403', rejection);
+                        auth.goToForbidden();
+                    }
                     return $q.reject(rejection);
                 }
             };
