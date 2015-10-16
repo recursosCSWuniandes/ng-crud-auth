@@ -1,21 +1,23 @@
 module.exports = function (grunt) {
 
+    // Time how long tasks take. Can help when optimizing build times
+    require('time-grunt')(grunt);
+
+    // Automatically load required Grunt tasks
+    require('jit-grunt')(grunt, {
+        ngtemplates: 'grunt-angular-templates'
+    });
+
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         concat: {
             dist: {
-                src: '<%= concat.dev.src %>',
-                dest: 'tmp/ngcrud-auth.js'
-            },
-            dev: {
                 src: [
-                    'src/js/auth.mod.js',
-                    'src/js/auth.svc.js',
-                    'src/js/auth.ctrl.js',
-                    'src/js/auth.dir.js'
+                    'src/**/*.mod.js',
+                    'src/**/*.js'
                 ],
-                dest: '../mp-books/MarketPlace.web/src/main/webapp/src/utils/ngcrud-auth.min.js'
+                dest: 'tmp/ngcrud-auth.js'
             }
         },
         ngtemplates: {
@@ -36,7 +38,7 @@ module.exports = function (grunt) {
             },
             dev: {
                 src: 'src/templates/**.html',
-                dest: '<%= concat.dev.dest %>'
+                dest: '<%= concat.dist.dest %>'
             }
         },
         uglify: {
@@ -47,17 +49,31 @@ module.exports = function (grunt) {
                 src: '<%= concat.dist.dest %>',
                 dest: 'dist/ngcrud-auth.min.js'
             }
+        },
+        connect: {
+            options: {
+                port: 9000,
+                // Change this to '0.0.0.0' to access the server from outside.
+                hostname: 'localhost'
+            },
+            dev: {
+                options: {
+                    base: 'tmp'
+                }
+            }
+        },
+        watch: {
+            js: {
+                files: ['src/**/*.js'],
+                tasks: ['dev']
+            }
         }
     });
 
-    grunt.loadNpmTasks('grunt-angular-templates');
+    grunt.registerTask('default', ['concat', 'ngtemplates:dist', 'uglify']);
 
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.registerTask('dev', ['concat', 'ngtemplates:dev']);
 
-    grunt.loadNpmTasks('grunt-contrib-concat');
-
-    grunt.registerTask('default', ['concat:dist', 'ngtemplates:dist', 'uglify']);
-
-    grunt.registerTask('dev', ['concat:dev', 'ngtemplates:dev']);
+    grunt.registerTask('serve', ['dev', 'connect:dev', 'watch']);
 
 };

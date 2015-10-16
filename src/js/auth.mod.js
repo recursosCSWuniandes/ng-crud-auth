@@ -1,11 +1,7 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['restangular', 'ngCookies', 'ngRoute']);
+    var mod = ng.module('authModule', ['ngCookies', 'ngRoute']);
     mod.constant('defaultStatus', {status: false});
-
-    mod.config(['RestangularProvider', function (rp) {
-        rp.setBaseUrl('webresources');
-    }]);
 
     mod.config(['$routeProvider', 'authServiceProvider', function ($routeProvider, auth) {
         var authConfig = auth.getValues();

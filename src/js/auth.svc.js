@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 (function (ng) {
 
     var mod = ng.module('authModule');
@@ -11,8 +6,7 @@
 
         //Default
         var values = {
-            prefix: 'webresources',
-            apiUrl: 'users',
+            apiUrl: 'webresources/users/',
             successPath: '/product',
             loginPath: '/login',
             registerPath: '/register',
@@ -46,16 +40,14 @@
             roles = newRoles;
         };
 
-        this.$get = ['Restangular', '$cookies', '$location', function (RestAngular, $cookies, $location) {
-            var self = this;
-            this.api = RestAngular.all(values.apiUrl);
+        this.$get = ['$cookies', '$location', '$http', function ($cookies, $location, $http) {
             return {
                 getRoles: function(){
                     return roles;
                 },
                 login: function (user) {
-                    return self.api.customPOST(user, values.loginURL).then(function (data) {
-                        $cookies.putObject(values.nameCookie, {userName: data.name, id: data.id});
+                    return $http.post(values.apiUrl+values.loginURL, user).then(function (data) {
+                        $cookies.putObject(values.nameCookie, data);
                         $location.path(values.successPath);
                     });
                 },
@@ -63,13 +55,13 @@
                     return values;
                 },
                 logout: function () {
-                    return self.api.customGET(values.logoutURL).then(function () {
+                    return $http.get(values.apiUrl+values.logoutURL).then(function () {
                         $cookies.remove(values.nameCookie);
                         $location.path(values.logoutRedirect);
                     });
                 },
                 register: function (user) {
-                    return self.api.customPOST(user, values.registerURL).then(function (data) {
+                    return $http.post(values.apiUrl+values.registerURL, user).then(function (data) {
                         $location.path(values.loginPath);
                     });
                 },
@@ -100,5 +92,3 @@
         }];
     });
 })(window.angular);
-
-
