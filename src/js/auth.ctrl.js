@@ -10,7 +10,7 @@
     mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
-        $scope.menuitems = [{id: '', label: '', icon: '', url: ''}];
+        $scope.menuitems=[];
         $scope.currentUser = ""
             $scope.$on('logged-in', function (events, user) {
                 $scope.currentUser = user.data.userName;
@@ -18,7 +18,8 @@
                 {
                     for (var rol in $scope.roles){
                         if (user.data.roles[i] === rol) {
-                            $scope.menuitems = [$scope.roles[rol]];
+                            for (var menu in $scope.roles[rol])
+                            $scope.menuitems.push($scope.roles[rol][menu]);
                         }
                     }
                 }
