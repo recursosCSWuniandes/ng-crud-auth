@@ -53,7 +53,7 @@
         };
 
         $scope.log = function(obj){
-            console.log(obj);
+            $log.debug(obj);
         };
 
         this.close = function () {
@@ -66,7 +66,6 @@
 
         this.register = function (newUser) {
             var self = this;
-            $log.debug('newUser', newUser);
             if (newUser.password !== newUser.confirmPassword) {
                 this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
             } else {
