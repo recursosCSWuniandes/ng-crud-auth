@@ -5,9 +5,12 @@
 <div ng-show="isAuthenticated()" class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" aria-haspopup="true"
             aria-expanded="false">
-        {{currentUser()}} <span class="caret"></span>
+        {{currentUser}} <span class="caret"></span>
     </button>
     <ul class="dropdown-menu">
+        <li ng-repeat="menuitem in menuitems">
+            <a ng-href='{{menuitem.url}}'><span class='glyphicon glyphicon-{{menuitem.icon}}' aria-hidden='true'></span> {{menuitem.label}}</a></li>
+        </li>
         <li>
             <a href ng-click="logout()">
                 <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout

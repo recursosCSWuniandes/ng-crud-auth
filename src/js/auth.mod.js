@@ -1,6 +1,6 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['ngCookies', 'ngRoute']);
+    var mod = ng.module('authModule', ['ngCookies', 'ngRoute', 'checklist-model', 'ngStorage']);
     mod.constant('defaultStatus', {status: false});
 
     mod.config(['$routeProvider', 'authServiceProvider', function ($routeProvider, auth) {
@@ -24,7 +24,7 @@
     }]);
 
     mod.config(['$httpProvider', 'authServiceProvider', function ($httpProvider, authServiceProvider) {
-        $httpProvider.interceptors.push(['$q', '$log', '$location', function ($q, $log, $location) {
+        $httpProvider.interceptors.push(['$q', '$log', '$location','$localStorage', function ($q, $log, $location,$localStorage) {
             return {
                 'responseError': function (rejection) {
                     if(rejection.status === 401){
@@ -36,7 +36,22 @@
                         $location.path(authServiceProvider.getValues().forbiddenPath);
                     }
                     return $q.reject(rejection);
+                },
+                request: function (config) {
+                    var token = $localStorage.token;
+                    if(token) {
+                        config.headers.Authorization = 'Bearer ' + token;
+                    }
+                    return config;
+                },
+                // If a token was sent back, save it
+                response: function(res) {
+                    if(res.headers('Authorization')) {
+                        $localStorage.token = res.headers('Authorization');
+                    }
+                    return res;
                 }
+
             };
         }]);
     }]);

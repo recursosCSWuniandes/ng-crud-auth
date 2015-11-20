@@ -7,30 +7,38 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus', function ($scope, $cookies, $location, authSvc, defaultStatus) {
+    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
+        $scope.menuitems = [{id: '', label: '', icon: '', url: ''}];
+        $scope.currentUser = ""
+            $scope.$on('logged-in', function (events, user) {
+                $scope.currentUser = user.data.userName;
+                for (var i=0; i<user.data.roles.length; i++)
+                {
+                    for (var rol in $scope.roles){
+                        if (user.data.roles[i] === rol) {
+                            $scope.menuitems = [$scope.roles[rol]];
+                        }
+                    }
+                }
+
+        });
+
+
         $scope.isAuthenticated = function(){
-            return !!authSvc.getCurrentUser();
+            return $scope.currentUser !== "";
         };
 
-        $scope.user = {};
-        for(var att in $scope.roles){
-            $scope.user.role = att;
-            break;
-        }
 
-        $scope.currentUser = function(){
-            var user = authSvc.getCurrentUser();
-            return user && user.name;
-        };
         this.login = function (user) {
             var self = this;
             if (user && user.userName && user.password) {
                 authSvc.login(user).then(function (data) {
-                    console.log("success", data);
+                    $log.info("success", data);
                 }, function (data) {
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
+                    $log.error("Error", data);
                 });
             }
         };
@@ -53,6 +61,7 @@
 
         this.register = function (newUser) {
             var self = this;
+            $log.debug('newUser', newUser);
             if (newUser.password !== newUser.confirmPassword) {
                 this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
             } else {

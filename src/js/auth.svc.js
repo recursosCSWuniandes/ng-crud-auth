@@ -40,14 +40,14 @@
             roles = newRoles;
         };
 
-        this.$get = ['$cookies', '$location', '$http', function ($cookies, $location, $http) {
+        this.$get = ['$cookies', '$location', '$http','$rootScope', function ($cookies, $location, $http, $rootScope) {
             return {
                 getRoles: function(){
                     return roles;
                 },
                 login: function (user) {
                     return $http.post(values.apiUrl+values.loginURL, user).then(function (data) {
-                        $cookies.putObject(values.nameCookie, data);
+                        $rootScope.$broadcast('logged-in', data);
                         $location.path(values.successPath);
                     });
                 },
@@ -56,7 +56,6 @@
                 },
                 logout: function () {
                     return $http.get(values.apiUrl+values.logoutURL).then(function () {
-                        $cookies.remove(values.nameCookie);
                         $location.path(values.logoutRedirect);
                     });
                 },
@@ -69,12 +68,8 @@
                     $location.path(values.registerPath);
                 },
                 getCurrentUser: function () {
-                    var jsession = $cookies.getObject(values.nameCookie);
-                    if (jsession) {
-                        return {id: jsession.id, name: jsession.userName};
-                    } else {
-                        return null;
-                    }
+                    $log.info("Sin implementar")
+                    return false
                 },
                 goToLogin: function () {
                     $location.path(values.loginPath);
