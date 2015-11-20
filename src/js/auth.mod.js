@@ -24,7 +24,7 @@
     }]);
 
     mod.config(['$httpProvider', 'authServiceProvider', function ($httpProvider, authServiceProvider) {
-        $httpProvider.interceptors.push(['$q', '$log', '$location','$localStorage', function ($q, $log, $location,$localStorage) {
+        $httpProvider.interceptors.push(['$q', '$log', '$location','$localStorage','$sessionStorage', function ($q, $log, $location,$localStorage, $sessionStorage) {
             return {
                 'responseError': function (rejection) {
                     if(rejection.status === 401){
@@ -38,7 +38,11 @@
                     return $q.reject(rejection);
                 },
                 request: function (config) {
-                    var token = $localStorage.token;
+                    if ("localStorage" === authServiceProvider.getJwtConfig().saveIn)
+                        var token = $localStorage.token;
+                    else if ("sessionStorage" === authServiceProvider.getJwtConfig().saveIn)
+                        var token = $sessionStorage.token;
+
                     if(token) {
                         config.headers.Authorization = 'Bearer ' + token;
                     }
@@ -47,7 +51,10 @@
                 // If a token was sent back, save it
                 response: function(res) {
                     if(res.headers('Authorization')) {
-                        $localStorage.token = res.headers('Authorization');
+                        if ("localStorage" === authServiceProvider.getJwtConfig().saveIn)
+                            $localStorage.token = res.headers(authServiceProvider.getJwtConfig().name);
+                        else if ("sessionStorage" === authServiceProvider.getJwtConfig().saveIn)
+                            $sessionStorage.token = res.headers(authServiceProvider.getJwtConfig().name);
                     }
                     return res;
                 }

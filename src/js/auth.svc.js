@@ -14,7 +14,6 @@
             loginURL: 'login',
             registerURL: 'register',
             logoutURL: 'logout',
-            nameCookie: 'user',
             forbiddenPath: '/forbidden'
         };
 
@@ -23,6 +22,19 @@
             'user': 'Client',
             'provider': 'Provider'
         };
+
+        var jwtConfig = {
+            'name': 'Authorization',
+            'saveIn': 'localStorage'
+        }
+
+        this.setJwtConfig = function(newConfig){
+            jwtConfig = ng.extend(jwtConfig,newConfig);
+        }
+
+        this.getJwtConfig = function(){
+            return jwtConfig;
+        }
 
         this.setValues = function (newValues) {
             values = ng.extend(values, newValues);
@@ -40,7 +52,7 @@
             roles = newRoles;
         };
 
-        this.$get = ['$cookies', '$location', '$http','$rootScope', function ($cookies, $location, $http, $rootScope) {
+        this.$get = ['$cookies', '$location', '$http','$rootScope','$localStorage', '$sessionStorage', function ($cookies, $location, $http, $rootScope, $localStorage, $sessionStorage) {
             return {
                 getRoles: function(){
                     return roles;
@@ -82,6 +94,12 @@
                 },
                 goToForbidden: function(){
                     $location.path(values.forbiddenPath);
+                },
+                deleteToken: function(){
+                    if (jwtConfig.saveIn === "localStorage")
+                        delete $localStorage.token
+                    else if (jwtConfig.saveIn === "sessionStorage")
+                        delete $sessionStorage.token
                 }
             };
         }];

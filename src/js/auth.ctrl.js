@@ -44,7 +44,11 @@
         };
 
         $scope.logout = function () {
-            authSvc.logout();
+            authSvc.logout().then(function(){
+                authSvc.deleteToken();
+                $scope.currentUser = "";
+
+            });
         };
 
         $scope.log = function(obj){
