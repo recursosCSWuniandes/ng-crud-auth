@@ -8,16 +8,36 @@ module.exports = function (grunt) {
         ngtemplates: 'grunt-angular-templates'
     });
 
+    var appConfig = {
+        src: 'src',
+        tmp: '.tmp',
+        dist: 'dist'
+    };
+
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        meta: appConfig,
+        clean: {
+            dist: {
+                files: [{
+                    dot: true,
+                    src: [
+                        '<%= meta.tmp %>',
+                        '<%= meta.dist %>/{,*/}*',
+                        '!<%= meta.dist %>/.git{,*/}*'
+                    ]
+                }]
+            },
+            server: '<%= meta.tmp %>'
+        },
         concat: {
             dist: {
                 src: [
-                    'src/**/*.mod.js',
-                    'src/**/*.js'
+                    '<%= meta.src %>/**/*.mod.js',
+                    '<%= meta.src %>/**/*.js'
                 ],
-                dest: 'tmp/ngcrud-auth.js'
+                dest: '<%= meta.dist %>/csw-ng-auth.js'
             }
         },
         ngtemplates: {
@@ -37,7 +57,7 @@ module.exports = function (grunt) {
                 }
             },
             dev: {
-                src: 'src/templates/**.html',
+                src: '<%= meta.src %>/templates/**/*.html',
                 dest: '<%= concat.dist.dest %>'
             }
         },
@@ -47,7 +67,7 @@ module.exports = function (grunt) {
             },
             build: {
                 src: '<%= concat.dist.dest %>',
-                dest: 'dist/ngcrud-auth.min.js'
+                dest: '<%= meta.dist %>/csw-ng-auth.min.js'
             }
         },
         connect: {
@@ -58,21 +78,23 @@ module.exports = function (grunt) {
             },
             dev: {
                 options: {
-                    base: 'tmp'
+                    base: '<%= meta.dist %>'
                 }
             }
         },
         watch: {
             js: {
-                files: ['src/**/*.js'],
+                files: ['<%= meta.src %>/**/*.js'],
                 tasks: ['dev']
             }
         }
     });
 
-    grunt.registerTask('default', ['concat', 'ngtemplates:dist', 'uglify']);
+    grunt.registerTask('default', ['build']);
 
-    grunt.registerTask('dev', ['concat', 'ngtemplates:dev']);
+    grunt.registerTask('build', ['clean', 'concat', 'ngtemplates:dist', 'uglify']);
+
+    grunt.registerTask('dev', ['clean', 'concat', 'ngtemplates:dev']);
 
     grunt.registerTask('serve', ['dev', 'connect:dev', 'watch']);
 

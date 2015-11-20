@@ -1,2 +1,2 @@
-# ng-crud-auth
+# csw-ng-auth
 Módulo de autenticación para AngularJS
