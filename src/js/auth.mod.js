@@ -16,6 +16,11 @@
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
+            .when(authConfig.forgotPassPath, {
+                templateUrl: 'src/templates/forgotPass.html',
+                controller: 'authController',
+                controllerAs: 'authCtrl'
+            })
             .when(authConfig.forbiddenPath, {
                 templateUrl: 'src/templates/forbidden.html',
                 controller: 'authController',

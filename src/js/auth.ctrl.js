@@ -7,7 +7,7 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
+    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log','$dialog', function ($scope, $cookies, $location, authSvc, defaultStatus, $log, $dialog) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
         $scope.menuitems=[];
@@ -75,6 +75,14 @@
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                 });
             }
+        };
+
+        this.goToForgotPass = function(){
+            authSvc.goToForgotPass();
+        };
+
+        this.forgotPass = function(user){
+            authSvc.forgotPass(user);
         };
 
 

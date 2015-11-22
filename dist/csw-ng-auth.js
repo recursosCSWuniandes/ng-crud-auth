@@ -16,6 +16,11 @@
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
+            .when(authConfig.forgotPassPath, {
+                templateUrl: 'src/templates/forgotPass.html',
+                controller: 'authController',
+                controllerAs: 'authCtrl'
+            })
             .when(authConfig.forbiddenPath, {
                 templateUrl: 'src/templates/forbidden.html',
                 controller: 'authController',
@@ -75,7 +80,7 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
+    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log','$dialog', function ($scope, $cookies, $location, authSvc, defaultStatus, $log, $dialog) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
         $scope.menuitems=[];
@@ -145,6 +150,14 @@
             }
         };
 
+        this.goToForgotPass = function(){
+            authSvc.goToForgotPass();
+        };
+
+        this.forgotPass = function(user){
+            authSvc.forgotPass(user);
+        };
+
 
         $scope.goToLogin = function () {
             authSvc.goToLogin();
@@ -190,14 +203,16 @@
 
         //Default
         var values = {
-            apiUrl: 'webresources/users/',
+            apiUrl: 'api/users/',
             successPath: '/product',
             loginPath: '/login',
+            forgotPassPath: '/forgotPass',
             registerPath: '/register',
             logoutRedirect: '/login',
             loginURL: 'login',
             registerURL: 'register',
             logoutURL: 'logout',
+            forgotPassURL: 'forgot',
             forbiddenPath: '/forbidden'
         };
 
@@ -260,6 +275,11 @@
                         $location.path(values.loginPath);
                     });
                 },
+                forgotPass: function (user) {
+                    return $http.post(values.apiUrl+values.forgotPassURL, user).then(function (data) {
+                        $location.path(values.loginPath);
+                    });
+                },
                 registration: function () {
                     $location.path(values.registerPath);
                 },
@@ -269,6 +289,9 @@
                 },
                 goToLogin: function () {
                     $location.path(values.loginPath);
+                },
+                goToForgotPass: function(){
+                    $location.path(values.forgotPassPath);
                 },
                 goToBack: function () {
                     $location.path(values.loginPath);
@@ -302,8 +325,13 @@ angular.module('authModule').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('src/templates/forgotPass.html',
+    "<div><div class=\"col-md-5 col-md-offset-4\"><div class=\"col-md-12\" ng-show=\"authCtrl.errorctrl.status\" ng-message=\"show\"><div class=\"alert alert-{{authCtrl.errorctrl.type}}\" role=\"alert\"><button type=\"button\" class=\"close\" ng-click=\"authCtrl.close()\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}</div></div><div class=\"col-md-12\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><h2 class=\"panel-title\">Password assistance</h2></div><div class=\"panel-body\"><p>Enter the email address associated with your account, then click <strong>Send Email</strong>. We'll send you a link to a page where you can easily create a new password.</p><form name=\"forgotPassform\" accept-charset=\"UTF-8\" role=\"form\"><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.email\" placeholder=\"Email\" name=\"email\" type=\"email\"></div><input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.forgotPass(user)\" type=\"submit\" value=\"Send Email\"> <input class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.goBack()\" type=\"submit\" value=\"Go Back\"></form></div></div></div></div></div>"
+  );
+
+
   $templateCache.put('src/templates/login.html',
-    "<div><div class=\"col-md-5 col-md-offset-4\"><div class=\"col-md-12\" ng-show=\"authCtrl.errorctrl.status\" ng-message=\"show\"><div class=\"alert alert-{{authCtrl.errorctrl.type}}\" role=\"alert\"><button type=\"button\" class=\"close\" ng-click=\"authCtrl.close()\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}</div></div><div class=\"col-md-12\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><h3 class=\"panel-title\">Please Login</h3></div><div class=\"panel-body\"><form name=\"loginform\" accept-charset=\"UTF-8\" role=\"form\"><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.userName\" placeholder=\"Username or Email\" name=\"username\" type=\"text\"></div><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.password\" placeholder=\"Password\" name=\"password\" type=\"password\"></div><div class=\"checkbox\"><label><input name=\"rememberMe\" type=\"checkbox\" ng-model=\"user.rememberMe\" value=\"false\"> Remember Me</label></div><input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.login(user)\" type=\"submit\" value=\"Login\"></form><button class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.registration()\">Register</button></div></div></div></div></div>"
+    "<div><div class=\"col-md-5 col-md-offset-4\"><div class=\"col-md-12\" ng-show=\"authCtrl.errorctrl.status\" ng-message=\"show\"><div class=\"alert alert-{{authCtrl.errorctrl.type}}\" role=\"alert\"><button type=\"button\" class=\"close\" ng-click=\"authCtrl.close()\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}</div></div><div class=\"col-md-12\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><h3 class=\"panel-title\">Please Login</h3></div><div class=\"panel-body\"><form name=\"loginform\" accept-charset=\"UTF-8\" role=\"form\"><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.userName\" placeholder=\"Username or Email\" name=\"username\" type=\"text\"></div><div class=\"form-group\"><div class=\"text-right\"><a align=\"right\" ng-click=\"authCtrl.goToForgotPass()\">Forgot your password?</a></div><input class=\"form-control\" required ng-model=\"user.password\" placeholder=\"Password\" name=\"password\" type=\"password\"></div><div class=\"checkbox\"><label><input name=\"rememberMe\" type=\"checkbox\" ng-model=\"user.rememberMe\" value=\"false\"> Remember Me</label></div><input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.login(user)\" type=\"submit\" value=\"Login\"></form><button class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.registration()\">Create an account</button></div></div></div></div></div>"
   );
 
 

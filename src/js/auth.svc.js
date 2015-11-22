@@ -6,14 +6,16 @@
 
         //Default
         var values = {
-            apiUrl: 'webresources/users/',
+            apiUrl: 'api/users/',
             successPath: '/product',
             loginPath: '/login',
+            forgotPassPath: '/forgotPass',
             registerPath: '/register',
             logoutRedirect: '/login',
             loginURL: 'login',
             registerURL: 'register',
             logoutURL: 'logout',
+            forgotPassURL: 'forgot',
             forbiddenPath: '/forbidden'
         };
 
@@ -76,6 +78,11 @@
                         $location.path(values.loginPath);
                     });
                 },
+                forgotPass: function (user) {
+                    return $http.post(values.apiUrl+values.forgotPassURL, user).then(function (data) {
+                        $location.path(values.loginPath);
+                    });
+                },
                 registration: function () {
                     $location.path(values.registerPath);
                 },
@@ -85,6 +92,9 @@
                 },
                 goToLogin: function () {
                     $location.path(values.loginPath);
+                },
+                goToForgotPass: function(){
+                    $location.path(values.forgotPassPath);
                 },
                 goToBack: function () {
                     $location.path(values.loginPath);
