@@ -34,6 +34,15 @@
                         <input class="form-control" required ng-model="user.surName" placeholder="Last Name" name="lastname" type="text" >
                     </div>
                     <div class="form-group">
+                        <label> Please select your roles: </label><br>
+                        <!--<select class="form-control" ng-options="rol as value.label for value in roles" name="SelectRole" ng-model="user.role" required></select>-->
+                        <div class="row">
+                            <div class="col-xs-6" ng-repeat="(key,value) in roles">
+                                <p><strong> {{key}} </strong></p><input type="checkbox" checklist-model="user.roles" checklist-value="key">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <input class="form-control" required ng-model="user.email" placeholder="email" name="email" type="email" >
                     </div>
                     <input class="btn btn-lg btn-primary btn-block" ng-click="authCtrl.register(user)" type="submit" value="Register">
