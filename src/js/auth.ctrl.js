@@ -11,7 +11,8 @@
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
         $scope.menuitems=[];
-        $scope.currentUser = ""
+        $scope.currentUser = "";
+        $scope.loading = false;
             $scope.$on('logged-in', function (events, user) {
                 $scope.currentUser = user.data.userName;
                 for (var i=0; i<user.data.roles.length; i++)
@@ -83,11 +84,14 @@
 
         this.forgotPass = function(user){
             var self = this;
+            $scope.loading = true;
             authSvc.forgotPass(user).then(function(data){
             }, function(data){
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
                 }
-            );
+            ).finally(function(){
+                   $scope.loading = false;
+                });
         };
 
 
