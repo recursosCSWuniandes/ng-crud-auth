@@ -48,6 +48,9 @@
                     <input class="btn btn-lg btn-primary btn-block" ng-click="authCtrl.register(user)" type="submit" value="Register">
                     <input class="btn btn-lg btn-default btn-block" ng-click="authCtrl.goBack()" type="submit" value="Go Back">
                 </form>
+                <div class="spinner text-center" ng-show="loading">
+                    <img src="http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif" alt="Loading" style="width:48px;height:48px;">
+                </div>
             </div>
         </div>
     </div>

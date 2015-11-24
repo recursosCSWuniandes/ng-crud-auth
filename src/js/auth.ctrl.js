@@ -67,13 +67,16 @@
 
         this.register = function (newUser) {
             var self = this;
+            $scope.loading = true;
             if (newUser.password !== newUser.confirmPassword) {
                 this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
             } else {
                 authSvc.register(newUser).then(function (data) {
                     self.errorctrl = {status: true, type: "success", msg: ":" + " User registered successfully"};
                 }, function (data) {
-                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
+                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
+                }).finally(function(){
+                    $scope.loading = false;
                 });
             }
         };
