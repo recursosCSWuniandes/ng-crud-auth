@@ -30,6 +30,9 @@
                         <input class="btn btn-lg btn-success btn-block" ng-click="authCtrl.login(user)" type="submit" value="Login">
                     </form>
                     <button class="btn btn-lg btn-default btn-block" ng-click="authCtrl.registration()">Create an account</button>
+                    <div class="spinner text-center" ng-show="loading">
+                        <img src="http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif" alt="Loading" style="width:48px;height:48px;">
+                    </div>
                 </div>
             </div>
         </div>

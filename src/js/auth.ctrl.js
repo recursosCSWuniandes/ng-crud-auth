@@ -35,12 +35,15 @@
 
         this.login = function (user) {
             var self = this;
+            $scope.loading = true;
             if (user && user.userName && user.password) {
                 authSvc.login(user).then(function (data) {
                     $log.info("success", data);
                 }, function (data) {
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                     $log.error("Error", data);
+                }).finally(function(){
+                    $scope.loading = false;
                 });
             }
         };
