@@ -42,7 +42,7 @@
             roles = newRoles;
         };
 
-        this.$get = ['$cookies', '$location', '$http','$rootScope','$localStorage', '$sessionStorage', function ($cookies, $location, $http, $rootScope, $localStorage, $sessionStorage) {
+        this.$get = ['$cookies', '$location', '$http','$rootScope','$log', function ($cookies, $location, $http, $rootScope, $log) {
             return {
                 getRoles: function(){
                     return roles;
@@ -50,6 +50,7 @@
                 login: function (user) {
                     return $http.post(values.apiUrl+values.loginURL, user).then(function (data) {
                         $rootScope.$broadcast('logged-in', data);
+                        $log.info("user", data);
                         $location.path(values.successPath);
                     });
                 },

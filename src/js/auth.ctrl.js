@@ -45,7 +45,6 @@
             if (user && user.userName && user.password) {
                 $scope.loading = true;
                 authSvc.login(user).then(function (data) {
-                    $log.info("user", data);
                 }, function (data) {
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                     $log.error("Error", data);
@@ -76,17 +75,23 @@
 
         this.register = function (newUser) {
             var self = this;
-            if (newUser.password !== newUser.confirmPassword) {
-                this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
-            } else {
-                $scope.loading = true;
-                authSvc.register(newUser).then(function (data) {
-                    self.errorctrl = {status: true, type: "success", msg: ":" + " User registered successfully"};
-                }, function (data) {
-                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
-                }).finally(function(){
-                    $scope.loading = false;
-                });
+            if (!!newUser && newUser.hasOwnProperty('userName') && newUser.hasOwnProperty('password')
+                && newUser.hasOwnProperty('confirmPassword') && newUser.hasOwnProperty('email')
+                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')){
+                if (newUser.password !== newUser.confirmPassword) {
+                    this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
+                } else {
+                    $scope.loading = true;
+                    authSvc.register(newUser).then(function (data) {
+                        self.errorctrl = {status: true, type: "success", msg: ": " + " User registered successfully"};
+                    }, function (data) {
+                        self.errorctrl = {status: true, type: "danger", msg: ": " + data.data.substring(66)};
+                    }).finally(function(){
+                        $scope.loading = false;
+                    });
+                }
+            }else {
+                self.errorctrl = {status: true, type: "danger", msg: ": " + "You must complete all fields"};
             }
         };
 
