@@ -16,7 +16,8 @@
             registerURL: 'register',
             logoutURL: 'logout',
             forgotPassURL: 'forgot',
-            forbiddenPath: '/forbidden'
+            forbiddenPath: '/forbidden',
+            meURL: '/me'
         };
 
         //Default Roles
@@ -24,19 +25,6 @@
             'user': 'Client',
             'provider': 'Provider'
         };
-
-        var jwtConfig = {
-            'name': 'Authorization',
-            'saveIn': 'localStorage'
-        }
-
-        this.setJwtConfig = function(newConfig){
-            jwtConfig = ng.extend(jwtConfig,newConfig);
-        }
-
-        this.getJwtConfig = function(){
-            return jwtConfig;
-        }
 
         this.setValues = function (newValues) {
             values = ng.extend(values, newValues);
@@ -86,10 +74,6 @@
                 registration: function () {
                     $location.path(values.registerPath);
                 },
-                getCurrentUser: function () {
-                    $log.info("Sin implementar")
-                    return false
-                },
                 goToLogin: function () {
                     $location.path(values.loginPath);
                 },
@@ -105,11 +89,8 @@
                 goToForbidden: function(){
                     $location.path(values.forbiddenPath);
                 },
-                deleteToken: function(){
-                    if (jwtConfig.saveIn === "localStorage")
-                        delete $localStorage.token
-                    else if (jwtConfig.saveIn === "sessionStorage")
-                        delete $sessionStorage.token
+                userAuthenticated: function(){
+                    return $http.get(values.apiUrl + values.meURL);
                 }
             };
         }];

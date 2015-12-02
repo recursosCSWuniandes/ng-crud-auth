@@ -10,35 +10,42 @@
     mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
-        $scope.menuitems=[];
-        $scope.currentUser = "";
+        authSvc.userAuthenticated().then(function(data){
+            $scope.currentUser = data.data;
+            if ($scope.currentUser !== "" && !$scope.menuitems){
+                $scope.setMenu($scope.currentUser);
+            }
+        });
         $scope.loading = false;
-            $scope.$on('logged-in', function (events, user) {
-                $scope.currentUser = user.data.userName;
-                for (var i=0; i<user.data.roles.length; i++)
-                {
-                    for (var rol in $scope.roles){
-                        if (user.data.roles[i] === rol) {
-                            for (var menu in $scope.roles[rol])
-                            $scope.menuitems.push($scope.roles[rol][menu]);
-                        }
-                    }
-                }
-
+        $scope.$on('logged-in', function (events, user) {
+            $scope.currentUser = user.data;
+            $scope.setMenu($scope.currentUser);
         });
 
+        $scope.setMenu = function(user){
+            $scope.menuitems=[];
+            for (var i=0; i<user.roles.length; i++)
+            {
+                for (var rol in $scope.roles){
+                    if (user.roles[i] === rol) {
+                        for (var menu in $scope.roles[rol])
+                            $scope.menuitems.push($scope.roles[rol][menu]);
+                    }
+                }
+            }
+        };
 
         $scope.isAuthenticated = function(){
-            return $scope.currentUser !== "";
+            return !!$scope.currentUser;
         };
 
 
         this.login = function (user) {
             var self = this;
-            $scope.loading = true;
             if (user && user.userName && user.password) {
+                $scope.loading = true;
                 authSvc.login(user).then(function (data) {
-                    $log.info("success", data);
+                    $log.info("user", data);
                 }, function (data) {
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                     $log.error("Error", data);
@@ -50,7 +57,6 @@
 
         $scope.logout = function () {
             authSvc.logout().then(function(){
-                authSvc.deleteToken();
                 $scope.currentUser = "";
 
             });
@@ -70,10 +76,10 @@
 
         this.register = function (newUser) {
             var self = this;
-            $scope.loading = true;
             if (newUser.password !== newUser.confirmPassword) {
                 this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
             } else {
+                $scope.loading = true;
                 authSvc.register(newUser).then(function (data) {
                     self.errorctrl = {status: true, type: "success", msg: ":" + " User registered successfully"};
                 }, function (data) {
@@ -90,14 +96,18 @@
 
         this.forgotPass = function(user){
             var self = this;
-            $scope.loading = true;
-            authSvc.forgotPass(user).then(function(data){
-            }, function(data){
-                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
-                }
-            ).finally(function(){
-                   $scope.loading = false;
-                });
+            if (user){
+                $scope.loading = true;
+                authSvc.forgotPass(user).then(function(data){
+                }, function(data){
+                        self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
+                    }
+                ).finally(function(){
+                       $scope.loading = false;
+                    });
+            }else {
+                self.errorctrl = {status: true, type: "danger", msg: ":" + "You must to enter an email address"}
+            }
         };
 
 

@@ -5,7 +5,7 @@
 <div ng-show="isAuthenticated()" class="btn-group">
     <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" aria-haspopup="true"
             aria-expanded="false">
-        {{currentUser}} <span class="caret"></span>
+        {{currentUser.userName}} <span class="caret"></span>
     </button>
     <ul class="dropdown-menu">
         <li ng-repeat="menuitem in menuitems">
