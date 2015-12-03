@@ -17,7 +17,7 @@
             logoutURL: 'logout',
             forgotPassURL: 'forgot',
             forbiddenPath: '/forbidden',
-            meURL: '/me'
+            meURL: 'me'
         };
 
         //Default Roles

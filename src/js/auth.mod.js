@@ -1,27 +1,31 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['ngCookies', 'ngRoute', 'checklist-model', 'ngStorage']);
+    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model']);
     mod.constant('defaultStatus', {status: false});
 
-    mod.config(['$routeProvider', 'authServiceProvider', function ($routeProvider, auth) {
+    mod.config(['$stateProvider', 'authServiceProvider', function ($stateProvider, auth) {
         var authConfig = auth.getValues();
-        $routeProvider
-            .when(authConfig.loginPath, {
+        $stateProvider
+            .state('login', {
+                url: authConfig.loginPath,
                 templateUrl: 'src/templates/login.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .when(authConfig.registerPath, {
+            .state('register', {
+                url: authConfig.registerPath,
                 templateUrl: 'src/templates/register.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .when(authConfig.forgotPassPath, {
+            .state('forgotPass', {
+                url: authConfig.forgotPassPath,
                 templateUrl: 'src/templates/forgotPass.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .when(authConfig.forbiddenPath, {
+            .state('forbidden', {
+                url: authConfig.forbiddenPath,
                 templateUrl: 'src/templates/forbidden.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
