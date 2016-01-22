@@ -18,7 +18,7 @@
         });
         $scope.loading = false;
         $scope.$on('logged-in', function (events, user) {
-            $scope.currentUser = user.data;
+            $scope.currentUser = user;
             $scope.setMenu($scope.currentUser);
         });
 

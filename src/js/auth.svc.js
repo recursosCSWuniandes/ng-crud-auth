@@ -48,9 +48,9 @@
                     return roles;
                 },
                 login: function (user) {
-                    return $http.post(values.apiUrl+values.loginURL, user).then(function (data) {
-                        $rootScope.$broadcast('logged-in', data);
-                        $log.debug("user", data);
+                    return $http.post(values.apiUrl+values.loginURL, user).then(function (response) {
+                        $rootScope.$broadcast('logged-in', response.data);
+                        $log.debug("user", response.data);
                         $state.go(values.successState);
                     });
                 },
