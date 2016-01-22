@@ -7,12 +7,12 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
+    mod.controller('authController', ['$scope', '$cookies', 'authService', 'defaultStatus', '$log', function ($scope, $cookies, authSvc, defaultStatus, $log) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
-        authSvc.userAuthenticated().then(function(data){
+        authSvc.userAuthenticated().then(function (data) {
             $scope.currentUser = data.data;
-            if ($scope.currentUser !== "" && !$scope.menuitems){
+            if ($scope.currentUser !== "" && !$scope.menuitems) {
                 $scope.setMenu($scope.currentUser);
             }
         });
@@ -22,11 +22,10 @@
             $scope.setMenu($scope.currentUser);
         });
 
-        $scope.setMenu = function(user){
-            $scope.menuitems=[];
-            for (var i=0; i<user.roles.length; i++)
-            {
-                for (var rol in $scope.roles){
+        $scope.setMenu = function (user) {
+            $scope.menuitems = [];
+            for (var i = 0; i < user.roles.length; i++) {
+                for (var rol in $scope.roles) {
                     if (user.roles[i] === rol) {
                         for (var menu in $scope.roles[rol])
                             $scope.menuitems.push($scope.roles[rol][menu]);
@@ -35,7 +34,7 @@
             }
         };
 
-        $scope.isAuthenticated = function(){
+        $scope.isAuthenticated = function () {
             return !!$scope.currentUser;
         };
 
@@ -48,20 +47,20 @@
                 }, function (data) {
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                     $log.error("Error", data);
-                }).finally(function(){
+                }).finally(function () {
                     $scope.loading = false;
                 });
             }
         };
 
         $scope.logout = function () {
-            authSvc.logout().then(function(){
+            authSvc.logout().then(function () {
                 $scope.currentUser = "";
 
             });
         };
 
-        $scope.log = function(obj){
+        $scope.log = function (obj) {
             $log.debug(obj);
         };
 
@@ -77,7 +76,7 @@
             var self = this;
             if (!!newUser && newUser.hasOwnProperty('userName') && newUser.hasOwnProperty('password')
                 && newUser.hasOwnProperty('confirmPassword') && newUser.hasOwnProperty('email')
-                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')){
+                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')) {
                 if (newUser.password !== newUser.confirmPassword) {
                     this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
                 } else {
@@ -86,31 +85,31 @@
                         self.errorctrl = {status: true, type: "success", msg: ": " + " User registered successfully"};
                     }, function (data) {
                         self.errorctrl = {status: true, type: "danger", msg: ": " + data.data.substring(66)};
-                    }).finally(function(){
+                    }).finally(function () {
                         $scope.loading = false;
                     });
                 }
-            }else {
+            } else {
                 self.errorctrl = {status: true, type: "danger", msg: ": " + "You must complete all fields"};
             }
         };
 
-        this.goToForgotPass = function(){
+        this.goToForgotPass = function () {
             authSvc.goToForgotPass();
         };
 
-        this.forgotPass = function(user){
+        this.forgotPass = function (user) {
             var self = this;
-            if (user){
+            if (user) {
                 $scope.loading = true;
-                authSvc.forgotPass(user).then(function(data){
-                }, function(data){
+                authSvc.forgotPass(user).then(function (data) {
+                    }, function (data) {
                         self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
                     }
-                ).finally(function(){
-                       $scope.loading = false;
-                    });
-            }else {
+                ).finally(function () {
+                    $scope.loading = false;
+                });
+            } else {
                 self.errorctrl = {status: true, type: "danger", msg: ":" + "You must to enter an email address"}
             }
         };
@@ -124,7 +123,7 @@
             authSvc.goToBack();
         };
 
-        $scope.goToSuccess = function(){
+        $scope.goToSuccess = function () {
             authSvc.goToSuccess();
         };
     }]);

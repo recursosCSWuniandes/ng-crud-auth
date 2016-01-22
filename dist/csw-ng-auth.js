@@ -6,43 +6,44 @@
     mod.config(['$stateProvider', 'authServiceProvider', function ($stateProvider, auth) {
         var authConfig = auth.getValues();
         $stateProvider
-            .state('login', {
-                url: authConfig.loginPath,
+            .state(authConfig.loginState, {
+                url: authConfig.loginState,
                 templateUrl: 'src/templates/login.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .state('register', {
-                url: authConfig.registerPath,
+            .state(authConfig.registerState, {
+                url: authConfig.registerState,
                 templateUrl: 'src/templates/register.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .state('forgotPass', {
-                url: authConfig.forgotPassPath,
+            .state(authConfig.forgotPassState, {
+                url: authConfig.forgotPassState,
                 templateUrl: 'src/templates/forgotPass.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .state('forbidden', {
-                url: authConfig.forbiddenPath,
+            .state(authConfig.forbiddenState, {
+                url: authConfig.forbiddenState,
                 templateUrl: 'src/templates/forbidden.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             });
     }]);
 
-    mod.config(['$httpProvider', 'authServiceProvider', function ($httpProvider, authServiceProvider) {
-        $httpProvider.interceptors.push(['$q', '$log', '$location', function ($q, $log, $location) {
+    mod.config(['$httpProvider', function ($httpProvider) {
+        $httpProvider.interceptors.push(['$q', '$log', '$injector', function ($q, $log, $injector) {
             return {
                 'responseError': function (rejection) {
+                    var authService = $injector.get('authService');
                     if(rejection.status === 401){
                         $log.debug('error 401', rejection);
-                        $location.path(authServiceProvider.getValues().loginPath);
+                        authService.goToLogin();
                     }
                     if(rejection.status === 403){
                         $log.debug('error 403', rejection);
-                        $location.path(authServiceProvider.getValues().forbiddenPath);
+                        authService.goToForbidden();
                     }
                     return $q.reject(rejection);
                 },
@@ -55,6 +56,14 @@
                 }
 
             };
+        }]);
+
+        mod.run(['authService', '$rootScope', function(auth, $rootScope){
+            auth.userAuthenticated().then(function(response){
+                if(response.status === 200 && response.data){
+                    $rootScope.$broadcast('logged-in', response.data);
+                }
+            })
         }]);
     }]);
 })(window.angular);
@@ -70,12 +79,12 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', '$location', 'authService', 'defaultStatus','$log', function ($scope, $cookies, $location, authSvc, defaultStatus, $log) {
+    mod.controller('authController', ['$scope', '$cookies', 'authService', 'defaultStatus', '$log', function ($scope, $cookies, authSvc, defaultStatus, $log) {
         this.errorctrl = defaultStatus;
         $scope.roles = authSvc.getRoles();
-        authSvc.userAuthenticated().then(function(data){
+        authSvc.userAuthenticated().then(function (data) {
             $scope.currentUser = data.data;
-            if ($scope.currentUser !== "" && !$scope.menuitems){
+            if ($scope.currentUser !== "" && !$scope.menuitems) {
                 $scope.setMenu($scope.currentUser);
             }
         });
@@ -85,11 +94,10 @@
             $scope.setMenu($scope.currentUser);
         });
 
-        $scope.setMenu = function(user){
-            $scope.menuitems=[];
-            for (var i=0; i<user.roles.length; i++)
-            {
-                for (var rol in $scope.roles){
+        $scope.setMenu = function (user) {
+            $scope.menuitems = [];
+            for (var i = 0; i < user.roles.length; i++) {
+                for (var rol in $scope.roles) {
                     if (user.roles[i] === rol) {
                         for (var menu in $scope.roles[rol])
                             $scope.menuitems.push($scope.roles[rol][menu]);
@@ -98,7 +106,7 @@
             }
         };
 
-        $scope.isAuthenticated = function(){
+        $scope.isAuthenticated = function () {
             return !!$scope.currentUser;
         };
 
@@ -111,20 +119,20 @@
                 }, function (data) {
                     self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
                     $log.error("Error", data);
-                }).finally(function(){
+                }).finally(function () {
                     $scope.loading = false;
                 });
             }
         };
 
         $scope.logout = function () {
-            authSvc.logout().then(function(){
+            authSvc.logout().then(function () {
                 $scope.currentUser = "";
 
             });
         };
 
-        $scope.log = function(obj){
+        $scope.log = function (obj) {
             $log.debug(obj);
         };
 
@@ -140,7 +148,7 @@
             var self = this;
             if (!!newUser && newUser.hasOwnProperty('userName') && newUser.hasOwnProperty('password')
                 && newUser.hasOwnProperty('confirmPassword') && newUser.hasOwnProperty('email')
-                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')){
+                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')) {
                 if (newUser.password !== newUser.confirmPassword) {
                     this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
                 } else {
@@ -149,31 +157,31 @@
                         self.errorctrl = {status: true, type: "success", msg: ": " + " User registered successfully"};
                     }, function (data) {
                         self.errorctrl = {status: true, type: "danger", msg: ": " + data.data.substring(66)};
-                    }).finally(function(){
+                    }).finally(function () {
                         $scope.loading = false;
                     });
                 }
-            }else {
+            } else {
                 self.errorctrl = {status: true, type: "danger", msg: ": " + "You must complete all fields"};
             }
         };
 
-        this.goToForgotPass = function(){
+        this.goToForgotPass = function () {
             authSvc.goToForgotPass();
         };
 
-        this.forgotPass = function(user){
+        this.forgotPass = function (user) {
             var self = this;
-            if (user){
+            if (user) {
                 $scope.loading = true;
-                authSvc.forgotPass(user).then(function(data){
-                }, function(data){
+                authSvc.forgotPass(user).then(function (data) {
+                    }, function (data) {
                         self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
                     }
-                ).finally(function(){
-                       $scope.loading = false;
-                    });
-            }else {
+                ).finally(function () {
+                    $scope.loading = false;
+                });
+            } else {
                 self.errorctrl = {status: true, type: "danger", msg: ":" + "You must to enter an email address"}
             }
         };
@@ -187,7 +195,7 @@
             authSvc.goToBack();
         };
 
-        $scope.goToSuccess = function(){
+        $scope.goToSuccess = function () {
             authSvc.goToSuccess();
         };
     }]);
@@ -195,22 +203,22 @@
 })(window.angular);
 
 
-/*
+/* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 (function(ng){
-
+    
     var mod = ng.module('authModule');
-
+    
     mod.directive('loginButton',[function(){
         return {
             scope:{},
             restrict: 'E',
             templateUrl: 'src/templates/button.html',
             controller: 'authController'
-        };
+        };                    
     }]);
 })(window.angular);
 
@@ -224,16 +232,16 @@
         //Default
         var values = {
             apiUrl: 'api/users/',
-            successPath: '/product',
-            loginPath: '/login',
-            forgotPassPath: '/forgotPass',
-            registerPath: '/register',
-            logoutRedirect: '/login',
+            loginState: 'login',
+            logoutRedirectState: 'login',
+            registerState: 'register',
+            forgotPassState: 'forgot',
+            successState: 'home',
+            forbiddenState: 'forbidden',
             loginURL: 'login',
             registerURL: 'register',
             logoutURL: 'logout',
             forgotPassURL: 'forgot',
-            forbiddenPath: '/forbidden',
             meURL: 'me'
         };
 
@@ -259,7 +267,7 @@
             roles = newRoles;
         };
 
-        this.$get = ['$cookies', '$location', '$http','$rootScope','$log', function ($cookies, $location, $http, $rootScope, $log) {
+        this.$get = ['$cookies', '$state', '$http','$rootScope','$log', function ($cookies, $state, $http, $rootScope, $log) {
             return {
                 getRoles: function(){
                     return roles;
@@ -267,8 +275,8 @@
                 login: function (user) {
                     return $http.post(values.apiUrl+values.loginURL, user).then(function (data) {
                         $rootScope.$broadcast('logged-in', data);
-                        $log.info("user", data);
-                        $location.path(values.successPath);
+                        $log.debug("user", data);
+                        $state.go(values.successState);
                     });
                 },
                 getConf: function () {
@@ -276,36 +284,36 @@
                 },
                 logout: function () {
                     return $http.get(values.apiUrl+values.logoutURL).then(function () {
-                        $location.path(values.logoutRedirect);
+                        $state.go(values.logoutRedirectState);
                     });
                 },
                 register: function (user) {
                     return $http.post(values.apiUrl+values.registerURL, user).then(function (data) {
-                        $location.path(values.loginPath);
+                        $state.go(values.loginState);
                     });
                 },
                 forgotPass: function (user) {
                     return $http.post(values.apiUrl+values.forgotPassURL, user).then(function (data) {
-                        $location.path(values.loginPath);
+                        $state.go(values.loginState);
                     });
                 },
                 registration: function () {
-                    $location.path(values.registerPath);
+                    $state.go(values.registerState);
                 },
                 goToLogin: function () {
-                    $location.path(values.loginPath);
+                    $state.go(values.loginState);
                 },
                 goToForgotPass: function(){
-                    $location.path(values.forgotPassPath);
+                    $state.go(values.forgotPassState);
                 },
                 goToBack: function () {
-                    $location.path(values.loginPath);
+                    $state.go(values.loginState);
                 },
                 goToSuccess: function () {
-                    $location.path(values.successPath);
+                    $state.go(values.successState);
                 },
                 goToForbidden: function(){
-                    $location.path(values.forbiddenPath);
+                    $state.go(values.forbiddenState);
                 },
                 userAuthenticated: function(){
                     return $http.get(values.apiUrl + values.meURL);
@@ -318,7 +326,7 @@ angular.module('authModule').run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('src/templates/button.html',
-    "<button ng-hide=\"isAuthenticated()\" type=\"button\" class=\"btn btn-default navbar-btn\" ng-click=\"goToLogin()\"><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span> Login</button><div ng-show=\"isAuthenticated()\" class=\"btn-group\"><button type=\"button\" class=\"btn btn-default dropdown-toggle navbar-btn\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">{{currentUser.userName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\"><li ng-repeat=\"menuitem in menuitems\"><a ng-href=\"{{menuitem.url}}\"><span class=\"glyphicon glyphicon-{{menuitem.icon}}\" aria-hidden=\"true\"></span> {{menuitem.label}}</a></li><li><a href ng-click=\"logout()\"><span class=\"glyphicon glyphicon-log-out\" aria-hidden=\"true\"></span> Logout</a></li></ul></div>"
+    "<button ng-hide=\"isAuthenticated()\" type=\"button\" class=\"btn btn-default navbar-btn\" ng-click=\"goToLogin()\"><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span> Login</button><div ng-show=\"isAuthenticated()\" class=\"btn-group\"><button type=\"button\" class=\"btn btn-default dropdown-toggle navbar-btn\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">{{currentUser.userName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\"><li ng-repeat=\"menuitem in menuitems\"><a ui-sref=\"{{menuitem.state}}\"><span class=\"glyphicon glyphicon-{{menuitem.icon}}\" aria-hidden=\"true\"></span> {{menuitem.label}}</a></li><li><a href ng-click=\"logout()\"><span class=\"glyphicon glyphicon-log-out\" aria-hidden=\"true\"></span> Logout</a></li></ul></div>"
   );
 
 

@@ -1,6 +1,6 @@
 {
   "name": "csw-ng-auth",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "description": "Authentication module for AngularJS",
   "main": "index.js",
   "scripts": {

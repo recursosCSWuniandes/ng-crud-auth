@@ -7,16 +7,16 @@
         //Default
         var values = {
             apiUrl: 'api/users/',
-            successPath: '/product',
-            loginPath: '/login',
-            forgotPassPath: '/forgotPass',
-            registerPath: '/register',
-            logoutRedirect: '/login',
+            loginState: 'login',
+            logoutRedirectState: 'login',
+            registerState: 'register',
+            forgotPassState: 'forgot',
+            successState: 'home',
+            forbiddenState: 'forbidden',
             loginURL: 'login',
             registerURL: 'register',
             logoutURL: 'logout',
             forgotPassURL: 'forgot',
-            forbiddenPath: '/forbidden',
             meURL: 'me'
         };
 
@@ -42,7 +42,7 @@
             roles = newRoles;
         };
 
-        this.$get = ['$cookies', '$location', '$http','$rootScope','$log', function ($cookies, $location, $http, $rootScope, $log) {
+        this.$get = ['$cookies', '$state', '$http','$rootScope','$log', function ($cookies, $state, $http, $rootScope, $log) {
             return {
                 getRoles: function(){
                     return roles;
@@ -50,8 +50,8 @@
                 login: function (user) {
                     return $http.post(values.apiUrl+values.loginURL, user).then(function (data) {
                         $rootScope.$broadcast('logged-in', data);
-                        $log.info("user", data);
-                        $location.path(values.successPath);
+                        $log.debug("user", data);
+                        $state.go(values.successState);
                     });
                 },
                 getConf: function () {
@@ -59,36 +59,36 @@
                 },
                 logout: function () {
                     return $http.get(values.apiUrl+values.logoutURL).then(function () {
-                        $location.path(values.logoutRedirect);
+                        $state.go(values.logoutRedirectState);
                     });
                 },
                 register: function (user) {
                     return $http.post(values.apiUrl+values.registerURL, user).then(function (data) {
-                        $location.path(values.loginPath);
+                        $state.go(values.loginState);
                     });
                 },
                 forgotPass: function (user) {
                     return $http.post(values.apiUrl+values.forgotPassURL, user).then(function (data) {
-                        $location.path(values.loginPath);
+                        $state.go(values.loginState);
                     });
                 },
                 registration: function () {
-                    $location.path(values.registerPath);
+                    $state.go(values.registerState);
                 },
                 goToLogin: function () {
-                    $location.path(values.loginPath);
+                    $state.go(values.loginState);
                 },
                 goToForgotPass: function(){
-                    $location.path(values.forgotPassPath);
+                    $state.go(values.forgotPassState);
                 },
                 goToBack: function () {
-                    $location.path(values.loginPath);
+                    $state.go(values.loginState);
                 },
                 goToSuccess: function () {
-                    $location.path(values.successPath);
+                    $state.go(values.successState);
                 },
                 goToForbidden: function(){
-                    $location.path(values.forbiddenPath);
+                    $state.go(values.forbiddenState);
                 },
                 userAuthenticated: function(){
                     return $http.get(values.apiUrl + values.meURL);

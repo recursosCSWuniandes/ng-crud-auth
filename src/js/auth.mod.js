@@ -6,43 +6,44 @@
     mod.config(['$stateProvider', 'authServiceProvider', function ($stateProvider, auth) {
         var authConfig = auth.getValues();
         $stateProvider
-            .state('login', {
-                url: authConfig.loginPath,
+            .state(authConfig.loginState, {
+                url: authConfig.loginState,
                 templateUrl: 'src/templates/login.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .state('register', {
-                url: authConfig.registerPath,
+            .state(authConfig.registerState, {
+                url: authConfig.registerState,
                 templateUrl: 'src/templates/register.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .state('forgotPass', {
-                url: authConfig.forgotPassPath,
+            .state(authConfig.forgotPassState, {
+                url: authConfig.forgotPassState,
                 templateUrl: 'src/templates/forgotPass.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             })
-            .state('forbidden', {
-                url: authConfig.forbiddenPath,
+            .state(authConfig.forbiddenState, {
+                url: authConfig.forbiddenState,
                 templateUrl: 'src/templates/forbidden.html',
                 controller: 'authController',
                 controllerAs: 'authCtrl'
             });
     }]);
 
-    mod.config(['$httpProvider', 'authServiceProvider', function ($httpProvider, authServiceProvider) {
-        $httpProvider.interceptors.push(['$q', '$log', '$location', function ($q, $log, $location) {
+    mod.config(['$httpProvider', function ($httpProvider) {
+        $httpProvider.interceptors.push(['$q', '$log', '$injector', function ($q, $log, $injector) {
             return {
                 'responseError': function (rejection) {
+                    var authService = $injector.get('authService');
                     if(rejection.status === 401){
                         $log.debug('error 401', rejection);
-                        $location.path(authServiceProvider.getValues().loginPath);
+                        authService.goToLogin();
                     }
                     if(rejection.status === 403){
                         $log.debug('error 403', rejection);
-                        $location.path(authServiceProvider.getValues().forbiddenPath);
+                        authService.goToForbidden();
                     }
                     return $q.reject(rejection);
                 },
@@ -55,6 +56,14 @@
                 }
 
             };
+        }]);
+
+        mod.run(['authService', '$rootScope', function(auth, $rootScope){
+            auth.userAuthenticated().then(function(response){
+                if(response.status === 200 && response.data){
+                    $rootScope.$broadcast('logged-in', response.data);
+                }
+            })
         }]);
     }]);
 })(window.angular);

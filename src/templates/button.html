@@ -9,7 +9,7 @@
     </button>
     <ul class="dropdown-menu">
         <li ng-repeat="menuitem in menuitems">
-            <a ng-href='{{menuitem.url}}'><span class='glyphicon glyphicon-{{menuitem.icon}}' aria-hidden='true'></span> {{menuitem.label}}</a></li>
+            <a ui-sref='{{menuitem.state}}'><span class='glyphicon glyphicon-{{menuitem.icon}}' aria-hidden='true'></span> {{menuitem.label}}</a></li>
         </li>
         <li>
             <a href ng-click="logout()">
