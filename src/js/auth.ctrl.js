@@ -24,14 +24,12 @@
 
         $scope.setMenu = function (user) {
             $scope.menuitems = [];
-            for (var i = 0; i < user.roles.length; i++) {
                 for (var rol in $scope.roles) {
-                    if (user.roles[i] === rol) {
+                    if (user.roles.indexOf(rol)!= -1 ) {
                         for (var menu in $scope.roles[rol])
                             $scope.menuitems.push($scope.roles[rol][menu]);
                     }
                 }
-            }
         };
 
         $scope.isAuthenticated = function () {

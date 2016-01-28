@@ -21,10 +21,7 @@
         };
 
         //Default Roles
-        var roles = {
-            'user': 'Client',
-            'provider': 'Provider'
-        };
+        var roles = {};
 
         this.setValues = function (newValues) {
             values = ng.extend(values, newValues);
