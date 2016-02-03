@@ -1,7 +1,6 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model']);
-    mod.constant('defaultStatus', {status: false});
+    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model', 'ngMessages', 'ui.bootstrap']);
 
     mod.config(['$stateProvider', 'authServiceProvider', function ($stateProvider, auth) {
         var authConfig = auth.getValues();

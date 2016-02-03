@@ -7,8 +7,8 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', 'authService', 'defaultStatus', '$log', function ($scope, $cookies, authSvc, defaultStatus, $log) {
-        this.errorctrl = defaultStatus;
+    mod.controller('authController', ['$scope', '$cookies', 'authService', '$log', function ($scope, $cookies, authSvc, $log) {
+        $scope.alerts = [];
         $scope.roles = authSvc.getRoles();
         authSvc.userAuthenticated().then(function (data) {
             $scope.currentUser = data.data;
@@ -25,7 +25,7 @@
         $scope.setMenu = function (user) {
             $scope.menuitems = [];
                 for (var rol in $scope.roles) {
-                    if (user.roles.indexOf(rol)!= -1 ) {
+                    if (user.roles.indexOf(rol)!== -1 ) {
                         for (var menu in $scope.roles[rol])
                             $scope.menuitems.push($scope.roles[rol][menu]);
                     }
@@ -36,6 +36,28 @@
             return !!$scope.currentUser;
         };
 
+        //Alerts
+        this.closeAlert = function (index) {
+            $scope.alerts.splice(index, 1);
+        };
+
+        function showMessage(msg, type) {
+            var types = ["info", "danger", "warning", "success"];
+            if (types.some(function (rc) {
+                    return type === rc;
+                })) {
+                $scope.alerts.push({ type: type, msg: msg });
+            }
+        }
+
+        this.showError = function (msg) {
+            showMessage(msg, "danger");
+        };
+
+        this.showSuccess = function (msg) {
+            showMessage(msg, "success");
+        };
+
 
         this.login = function (user) {
             var self = this;
@@ -43,7 +65,7 @@
                 $scope.loading = true;
                 authSvc.login(user).then(function (data) {
                 }, function (data) {
-                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
+                    self.showError(data.data);
                     $log.error("Error", data);
                 }).finally(function () {
                     $scope.loading = false;
@@ -62,34 +84,21 @@
             $log.debug(obj);
         };
 
-        this.close = function () {
-            this.errorctrl = defaultStatus;
-        };
 
         this.registration = function () {
             authSvc.registration();
         };
 
+        var self = this;
         this.register = function (newUser) {
-            var self = this;
-            if (!!newUser && newUser.hasOwnProperty('userName') && newUser.hasOwnProperty('password')
-                && newUser.hasOwnProperty('confirmPassword') && newUser.hasOwnProperty('email')
-                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')) {
-                if (newUser.password !== newUser.confirmPassword) {
-                    this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
-                } else {
-                    $scope.loading = true;
-                    authSvc.register(newUser).then(function (data) {
-                        self.errorctrl = {status: true, type: "success", msg: ": " + " User registered successfully"};
-                    }, function (data) {
-                        self.errorctrl = {status: true, type: "danger", msg: ": " + data.data.substring(66)};
-                    }).finally(function () {
-                        $scope.loading = false;
-                    });
-                }
-            } else {
-                self.errorctrl = {status: true, type: "danger", msg: ": " + "You must complete all fields"};
-            }
+            $scope.loading = true;
+            authSvc.register(newUser).then(function (data) {
+                self.showSuccess("User registered successfully");
+            }, function (data) {
+                self.showError(data.data.substring(66));
+            }).finally(function () {
+                $scope.loading = false;
+            });
         };
 
         this.goToForgotPass = function () {
@@ -102,13 +111,13 @@
                 $scope.loading = true;
                 authSvc.forgotPass(user).then(function (data) {
                     }, function (data) {
-                        self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
+                        self.showError(data.data.substring(66));
                     }
                 ).finally(function () {
                     $scope.loading = false;
                 });
             } else {
-                self.errorctrl = {status: true, type: "danger", msg: ":" + "You must to enter an email address"}
+                self.showError("You must to enter an email address");
             }
         };
 

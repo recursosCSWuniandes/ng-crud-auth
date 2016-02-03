@@ -22,9 +22,11 @@
     "tests"
   ],
   "dependencies": {
+    "angular-messages": "~1.4.8",
+    "angular-bootstrap": "^0.13.4",
     "ngstorage": "~0.3.10",
     "checklist-model": "~0.7.0",
-    "angular-route": "~1.4.8",
+    "angular-ui-router": "~0.2.15",
     "angular-cookies": "~1.4.8",
     "angular": "~1.4.8"
   }

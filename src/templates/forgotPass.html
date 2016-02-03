@@ -1,12 +1,7 @@
 <div>
     <div class="col-md-5 col-md-offset-4">
-        <div class="col-md-12" ng-show="authCtrl.errorctrl.status" ng-message="show">
-            <div class="alert alert-{{authCtrl.errorctrl.type}}" role="alert">
-                <button type="button" class="close" ng-click="authCtrl.close()" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}
-            </div>
-        </div>
         <div class="col-md-12">
+        <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="authCtrl.closeAlert($index)">{{alert.msg}}</alert>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="panel-title">Password assistance</h2>

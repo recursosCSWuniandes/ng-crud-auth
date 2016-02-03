@@ -1,7 +1,6 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model']);
-    mod.constant('defaultStatus', {status: false});
+    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model', 'ngMessages', 'ui.bootstrap']);
 
     mod.config(['$stateProvider', 'authServiceProvider', function ($stateProvider, auth) {
         var authConfig = auth.getValues();
@@ -79,8 +78,8 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', 'authService', 'defaultStatus', '$log', function ($scope, $cookies, authSvc, defaultStatus, $log) {
-        this.errorctrl = defaultStatus;
+    mod.controller('authController', ['$scope', '$cookies', 'authService', '$log', function ($scope, $cookies, authSvc, $log) {
+        $scope.alerts = [];
         $scope.roles = authSvc.getRoles();
         authSvc.userAuthenticated().then(function (data) {
             $scope.currentUser = data.data;
@@ -97,7 +96,7 @@
         $scope.setMenu = function (user) {
             $scope.menuitems = [];
                 for (var rol in $scope.roles) {
-                    if (user.roles.indexOf(rol)!= -1 ) {
+                    if (user.roles.indexOf(rol)!== -1 ) {
                         for (var menu in $scope.roles[rol])
                             $scope.menuitems.push($scope.roles[rol][menu]);
                     }
@@ -108,6 +107,28 @@
             return !!$scope.currentUser;
         };
 
+        //Alerts
+        this.closeAlert = function (index) {
+            $scope.alerts.splice(index, 1);
+        };
+
+        function showMessage(msg, type) {
+            var types = ["info", "danger", "warning", "success"];
+            if (types.some(function (rc) {
+                    return type === rc;
+                })) {
+                $scope.alerts.push({ type: type, msg: msg });
+            }
+        }
+
+        this.showError = function (msg) {
+            showMessage(msg, "danger");
+        };
+
+        this.showSuccess = function (msg) {
+            showMessage(msg, "success");
+        };
+
 
         this.login = function (user) {
             var self = this;
@@ -115,7 +136,7 @@
                 $scope.loading = true;
                 authSvc.login(user).then(function (data) {
                 }, function (data) {
-                    self.errorctrl = {status: true, type: "danger", msg: ":" + data.data};
+                    self.showError(data.data);
                     $log.error("Error", data);
                 }).finally(function () {
                     $scope.loading = false;
@@ -134,34 +155,21 @@
             $log.debug(obj);
         };
 
-        this.close = function () {
-            this.errorctrl = defaultStatus;
-        };
 
         this.registration = function () {
             authSvc.registration();
         };
 
+        var self = this;
         this.register = function (newUser) {
-            var self = this;
-            if (!!newUser && newUser.hasOwnProperty('userName') && newUser.hasOwnProperty('password')
-                && newUser.hasOwnProperty('confirmPassword') && newUser.hasOwnProperty('email')
-                && newUser.hasOwnProperty('givenName') && newUser.hasOwnProperty('surName')) {
-                if (newUser.password !== newUser.confirmPassword) {
-                    this.errorctrl = {status: true, type: "warning", msg: ": Passwords must be equals"};
-                } else {
-                    $scope.loading = true;
-                    authSvc.register(newUser).then(function (data) {
-                        self.errorctrl = {status: true, type: "success", msg: ": " + " User registered successfully"};
-                    }, function (data) {
-                        self.errorctrl = {status: true, type: "danger", msg: ": " + data.data.substring(66)};
-                    }).finally(function () {
-                        $scope.loading = false;
-                    });
-                }
-            } else {
-                self.errorctrl = {status: true, type: "danger", msg: ": " + "You must complete all fields"};
-            }
+            $scope.loading = true;
+            authSvc.register(newUser).then(function (data) {
+                self.showSuccess("User registered successfully");
+            }, function (data) {
+                self.showError(data.data.substring(66));
+            }).finally(function () {
+                $scope.loading = false;
+            });
         };
 
         this.goToForgotPass = function () {
@@ -174,13 +182,13 @@
                 $scope.loading = true;
                 authSvc.forgotPass(user).then(function (data) {
                     }, function (data) {
-                        self.errorctrl = {status: true, type: "danger", msg: ":" + data.data.substring(66)};
+                        self.showError(data.data.substring(66));
                     }
                 ).finally(function () {
                     $scope.loading = false;
                 });
             } else {
-                self.errorctrl = {status: true, type: "danger", msg: ":" + "You must to enter an email address"}
+                self.showError("You must to enter an email address");
             }
         };
 
@@ -321,27 +329,198 @@ angular.module('authModule').run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('src/templates/button.html',
-    "<button ng-hide=\"isAuthenticated()\" type=\"button\" class=\"btn btn-default navbar-btn\" ng-click=\"goToLogin()\"><span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span> Login</button><div ng-show=\"isAuthenticated()\" class=\"btn-group\"><button type=\"button\" class=\"btn btn-default dropdown-toggle navbar-btn\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">{{currentUser.userName}} <span class=\"caret\"></span></button><ul class=\"dropdown-menu\"><li ng-repeat=\"menuitem in menuitems\"><a ui-sref=\"{{menuitem.state}}\"><span class=\"glyphicon glyphicon-{{menuitem.icon}}\" aria-hidden=\"true\"></span> {{menuitem.label}}</a></li><li><a href ng-click=\"logout()\"><span class=\"glyphicon glyphicon-log-out\" aria-hidden=\"true\"></span> Logout</a></li></ul></div>"
+    "<button ng-hide=\"isAuthenticated()\" type=\"button\" class=\"btn btn-default navbar-btn\" ng-click=\"goToLogin()\">\r" +
+    "\n" +
+    "    <span class=\"glyphicon glyphicon-user\" aria-hidden=\"true\"></span> Login\r" +
+    "\n" +
+    "</button>\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "<div ng-show=\"isAuthenticated()\" class=\"btn-group\">\r" +
+    "\n" +
+    "    <button type=\"button\" class=\"btn btn-default dropdown-toggle navbar-btn\" data-toggle=\"dropdown\" aria-haspopup=\"true\"\r" +
+    "\n" +
+    "            aria-expanded=\"false\">\r" +
+    "\n" +
+    "        {{currentUser.userName}} <span class=\"caret\"></span>\r" +
+    "\n" +
+    "    </button>\r" +
+    "\n" +
+    "    <ul class=\"dropdown-menu\">\r" +
+    "\n" +
+    "        <li ng-repeat=\"menuitem in menuitems\">\r" +
+    "\n" +
+    "            <a ui-sref='{{menuitem.state}}'><span class='glyphicon glyphicon-{{menuitem.icon}}' aria-hidden='true'></span> {{menuitem.label}}</a></li>\r" +
+    "\n" +
+    "        </li>\r" +
+    "\n" +
+    "        <li>\r" +
+    "\n" +
+    "            <a href ng-click=\"logout()\">\r" +
+    "\n" +
+    "                <span class=\"glyphicon glyphicon-log-out\" aria-hidden=\"true\"></span> Logout\r" +
+    "\n" +
+    "            </a>\r" +
+    "\n" +
+    "        </li>\r" +
+    "\n" +
+    "    </ul>\r" +
+    "\n" +
+    "</div>\r" +
+    "\n"
   );
 
 
   $templateCache.put('src/templates/forbidden.html',
-    "<div class=\"jumbotron\"><h1>Oups,Forbidden!!</h1><p>You don't have permissions for this resource!!</p><p><a class=\"btn btn-primary btn-lg\" ng-click=\"goToSuccess()\" role=\"button\">Back</a></p></div>"
+    "<div class=\"jumbotron\">\r" +
+    "\n" +
+    "    <h1>Oups,Forbidden!!</h1>\r" +
+    "\n" +
+    "    <p> You don't have permissions for this resource!!</p>\r" +
+    "\n" +
+    "    <p><a class=\"btn btn-primary btn-lg\" ng-click=\"goToSuccess()\" role=\"button\">Back</a></p>\r" +
+    "\n" +
+    "</div>\r" +
+    "\n"
   );
 
 
   $templateCache.put('src/templates/forgotPass.html',
-    "<div><div class=\"col-md-5 col-md-offset-4\"><div class=\"col-md-12\" ng-show=\"authCtrl.errorctrl.status\" ng-message=\"show\"><div class=\"alert alert-{{authCtrl.errorctrl.type}}\" role=\"alert\"><button type=\"button\" class=\"close\" ng-click=\"authCtrl.close()\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}</div></div><div class=\"col-md-12\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><h2 class=\"panel-title\">Password assistance</h2></div><div class=\"panel-body\"><p>Enter the email address associated with your account, then click <strong>Send Email</strong>. We'll send you a link to a page where you can easily create a new password.</p><form name=\"forgotPassform\" accept-charset=\"UTF-8\" role=\"form\"><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.email\" placeholder=\"Email\" name=\"email\" type=\"email\"></div><input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.forgotPass(user)\" type=\"submit\" value=\"Send Email\"> <input class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.goBack()\" type=\"submit\" value=\"Go Back\"></form><div class=\"spinner text-center\" ng-show=\"loading\"><img src=\"http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif\" alt=\"Loading\" style=\"width:48px;height:48px\"></div></div></div></div></div></div>"
+    "<div>\n" +
+    "    <div class=\"col-md-5 col-md-offset-4\">\n" +
+    "        <div class=\"col-md-12\">\n" +
+    "        <alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"authCtrl.closeAlert($index)\">{{alert.msg}}</alert>\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-heading\">\n" +
+    "                    <h2 class=\"panel-title\">Password assistance</h2>\n" +
+    "                </div>\n" +
+    "                <div class=\"panel-body\">\n" +
+    "                    <p>Enter the email address associated with your account, then click <strong>Send Email</strong>. We'll send you a link to a page where you can easily create a new password.</p>\n" +
+    "                    <form name=\"forgotPassform\" accept-charset=\"UTF-8\" role=\"form\">\n" +
+    "                        <div class=\"form-group\">\n" +
+    "                            <input class=\"form-control\" required ng-model=\"user.email\" placeholder=\"Email\" name=\"email\" type=\"email\">\n" +
+    "                        </div>\n" +
+    "                        <input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.forgotPass(user)\" type=\"submit\" value=\"Send Email\">\n" +
+    "                        <input class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.goBack()\" type=\"submit\" value=\"Go Back\">\n" +
+    "                    </form>\n" +
+    "                    <div class=\"spinner text-center\" ng-show=\"loading\">\n" +
+    "                        <img src=\"http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif\" alt=\"Loading\" style=\"width:48px;height:48px;\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "\n"
   );
 
 
   $templateCache.put('src/templates/login.html',
-    "<div><div class=\"col-md-5 col-md-offset-4\"><div class=\"col-md-12\" ng-show=\"authCtrl.errorctrl.status\" ng-message=\"show\"><div class=\"alert alert-{{authCtrl.errorctrl.type}}\" role=\"alert\"><button type=\"button\" class=\"close\" ng-click=\"authCtrl.close()\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}</div></div><div class=\"col-md-12\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><h3 class=\"panel-title\">Please Login</h3></div><div class=\"panel-body\"><form name=\"loginform\" accept-charset=\"UTF-8\" role=\"form\"><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.userName\" placeholder=\"Username or Email\" name=\"username\" type=\"text\"></div><div class=\"form-group\"><div class=\"text-right\"><a align=\"right\" ng-click=\"authCtrl.goToForgotPass()\">Forgot your password?</a></div><input class=\"form-control\" required ng-model=\"user.password\" placeholder=\"Password\" name=\"password\" type=\"password\"></div><div class=\"checkbox\"><label><input name=\"rememberMe\" type=\"checkbox\" ng-model=\"user.rememberMe\" value=\"false\"> Remember Me</label></div><input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.login(user)\" type=\"submit\" value=\"Login\"></form><button class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.registration()\">Create an account</button><div class=\"spinner text-center\" ng-show=\"loading\"><img src=\"http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif\" alt=\"Loading\" style=\"width:48px;height:48px\"></div></div></div></div></div></div>"
+    "<div>\n" +
+    "    <div class=\"col-md-5 col-md-offset-4\">\n" +
+    "        <alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"authCtrl.closeAlert($index)\">{{alert.msg}}</alert>\n" +
+    "        <div class=\"col-md-12\">\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-heading\">\n" +
+    "                    <h3 class=\"panel-title\">Please Login</h3>\n" +
+    "                </div>\n" +
+    "                <div class=\"panel-body\">\n" +
+    "                    <form name=\"loginform\" accept-charset=\"UTF-8\" role=\"form\">\n" +
+    "                        <div class=\"form-group\">\n" +
+    "                            <input class=\"form-control\" required ng-model=\"user.userName\" placeholder=\"Username or Email\" name=\"username\" type=\"text\">\n" +
+    "                        </div>\n" +
+    "                        <div class=\"form-group\">\n" +
+    "                            <div class=\"text-right\">\n" +
+    "                                <a align=\"right\" ng-click=\"authCtrl.goToForgotPass()\">Forgot your password?</a>\n" +
+    "                            </div>\n" +
+    "                            <input class=\"form-control\" required ng-model=\"user.password\" placeholder=\"Password\" name=\"password\" type=\"password\" >\n" +
+    "                        </div>\n" +
+    "                        <div class=\"checkbox\">\n" +
+    "                            <label>\n" +
+    "                                <input  name=\"rememberMe\" type=\"checkbox\" ng-model=\"user.rememberMe\" value=\"false\"> Remember Me\n" +
+    "                            </label>\n" +
+    "                        </div>\n" +
+    "                        <input class=\"btn btn-lg btn-success btn-block\" ng-click=\"authCtrl.login(user)\" type=\"submit\" value=\"Login\">\n" +
+    "                    </form>\n" +
+    "                    <button class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.registration()\">Create an account</button>\n" +
+    "                    <div class=\"spinner text-center\" ng-show=\"loading\">\n" +
+    "                        <img src=\"http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif\" alt=\"Loading\" style=\"width:48px;height:48px;\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
   );
 
 
   $templateCache.put('src/templates/register.html',
-    "<div><div class=\"col-md-5 col-md-offset-4\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><h3 class=\"panel-title\">Please Register</h3><div style=\"padding-top: 30px\" class=\"col-md-12\" ng-show=\"authCtrl.errorctrl.status\" ng-message=\"show\"><div class=\"alert alert-{{authCtrl.errorctrl.type}}\" role=\"alert\"><button type=\"button\" class=\"close\" ng-click=\"authCtrl.close()\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>{{authCtrl.errorctrl.type| uppercase}}</strong> {{authCtrl.errorctrl.msg}}</div></div></div><div class=\"panel-body\"><form name=\"loginform\" accept-charset=\"UTF-8\" role=\"form\"><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.userName\" placeholder=\"Username\" name=\"username\" type=\"text\"></div><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.password\" placeholder=\"Password\" name=\"password\" type=\"password\"></div><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.confirmPassword\" placeholder=\"Confirm Password\" name=\"confirmpassword\" type=\"password\"></div><div class=\"row\"><div class=\"form-group col-xs-6\"><input class=\"form-control\" align=\"left\" required ng-model=\"user.givenName\" placeholder=\"First name\" name=\"firstname\" type=\"text\"></div><div class=\"form-group col-xs-6\"><input class=\"form-control\" align=\"right\" ng-model=\"user.middleName\" placeholder=\"Middle name\" name=\"middlename\" type=\"text\"></div></div><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.surName\" placeholder=\"Last Name\" name=\"lastname\" type=\"text\"></div><div class=\"form-group\"><label>Please select your roles:</label><br><div class=\"row\"><div class=\"col-xs-6\" ng-repeat=\"(key,value) in roles\"><p><strong>{{key}}</strong></p><input type=\"checkbox\" checklist-model=\"user.roles\" checklist-value=\"key\"></div></div></div><div class=\"form-group\"><input class=\"form-control\" required ng-model=\"user.email\" placeholder=\"email\" name=\"email\" type=\"email\"></div><input class=\"btn btn-lg btn-primary btn-block\" ng-click=\"authCtrl.register(user)\" type=\"submit\" value=\"Register\"> <input class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.goBack()\" type=\"submit\" value=\"Go Back\"></form><div class=\"spinner text-center\" ng-show=\"loading\"><img src=\"http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif\" alt=\"Loading\" style=\"width:48px;height:48px\"></div></div></div></div></div>"
+    "\n" +
+    "<div>\n" +
+    "    <div class=\"col-md-5 col-md-offset-4\">\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <alert ng-repeat=\"alert in alerts\" type=\"{{alert.type}}\" close=\"authCtrl.closeAlert($index)\">{{alert.msg}}</alert>\n" +
+    "            <div class=\"panel-heading\">\n" +
+    "                <h3 class=\"panel-title\">Please Register</h3>\n" +
+    "            </div>\n" +
+    "            <div class=\"panel-body\">\n" +
+    "                <alert ng-messages=\"loginform.$error\" type=\"danger\" close=\"\" ng-hide=\"!loginform.$error.required && !loginform.$error.minlength && !loginform.email.$invalid \">\n" +
+    "                    <div ng-message=\"required\">\n" +
+    "                      Please, Fill the required fields!\n" +
+    "                    </div>\n" +
+    "                    <div ng-message=\"minlength\">\n" +
+    "                        Your password must be 6 and 10 characters long!\n" +
+    "                    </div>\n" +
+    "                    <div ng-message=\"email\">\n" +
+    "                        Your email address is invalid!\n" +
+    "                    </div>\n" +
+    "                </alert>\n" +
+    "                <form novalidate name=\"loginform\" accept-charset=\"UTF-8\" role=\"form\" ng-submit=\"loginform.$valid && authCtrl.register(user)\">\n" +
+    "                    <fieldset>\n" +
+    "                    <div class=\"form-group\" ng-class=\"{'has-success': loginform.username.$valid && loginform.name.$dirty, 'has-error': loginform.name.$invalid && loginform.$submitted }\">\n" +
+    "                        <input class=\"form-control\" required ng-model=\"user.userName\" placeholder=\"Username\" name=\"username\" type=\"text\">\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-class=\"{'has-success': loginform.password.$valid && loginform.password.$dirty, 'has-error': loginform.password.$invalid && loginform.$submitted }\">\n" +
+    "                        <input class=\"form-control\" minlength=\"6\" required ng-model=\"user.password\" placeholder=\"Password\" name=\"password\" type=\"password\" >\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-class=\"{'has-success': loginform.confirmpassword.$valid && loginform.confirmpassword.$dirty, 'has-error': loginform.confirmpassword.$invalid && loginform.$submitted }\">\n" +
+    "                        <input class=\"form-control\" minlength=\"6\" required ng-model=\"user.confirmPassword\" placeholder=\"Confirm Password\" name=\"confirmpassword\" type=\"password\" >\n" +
+    "                    </div>\n" +
+    "                    <div class=\"row\">\n" +
+    "                        <div class=\"form-group col-xs-6\" ng-class=\"{'has-success': loginform.firstname.$valid && loginform.firstname.$dirty, 'has-error': loginform.firstname.$invalid && loginform.$submitted }\">\n" +
+    "                            <input class=\"form-control\" align=\"left\" required ng-model=\"user.givenName\" placeholder=\"First name\" name=\"firstname\" type=\"text\" >\n" +
+    "                        </div>\n" +
+    "                        <div class=\"form-group col-xs-6\" ng-class=\"{'has-success': loginform.middlename.$valid && loginform.middlename.$dirty, 'has-error': loginform.middlename.$invalid && loginform.$submitted }\">\n" +
+    "                            <input class=\"form-control\" align=\"right\" ng-model=\"user.middleName\" placeholder=\"Middle name\" name=\"middlename\" type=\"text\" >\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-class=\"{'has-success': loginform.lastname.$valid && loginform.lastname.$dirty, 'has-error': loginform.lastname.$invalid && loginform.$submitted }\">\n" +
+    "                        <input class=\"form-control\" required ng-model=\"user.surName\" placeholder=\"Last Name\" name=\"lastname\" type=\"text\" >\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <label> Please select your roles: </label><br>\n" +
+    "                        <!--<select class=\"form-control\" ng-options=\"rol as value.label for value in roles\" name=\"SelectRole\" ng-model=\"user.role\" required></select>-->\n" +
+    "                        <div class=\"row\">\n" +
+    "                            <div class=\"col-xs-6\" ng-repeat=\"(key,value) in roles\">\n" +
+    "                                <p><strong> {{key}} </strong></p><input type=\"checkbox\" name=\"roles\" checklist-model=\"user.roles\" checklist-value=\"key\">\n" +
+    "                            </div>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-class=\"{'has-success': loginform.email.$valid && loginform.email.$dirty, 'has-error': loginform.email.$invalid && loginform.$submitted }\">\n" +
+    "                        <input class=\"form-control\" required ng-model=\"user.email\" placeholder=\"email\" name=\"email\" type=\"email\" >\n" +
+    "                    </div>\n" +
+    "                    </fieldset>\n" +
+    "                        <input class=\"btn btn-lg btn-primary btn-block\" type=\"submit\" value=\"Register\">\n" +
+    "                        <input class=\"btn btn-lg btn-default btn-block\" ng-click=\"authCtrl.goBack()\" type=\"submit\" value=\"Go Back\">\n" +
+    "                </form>\n" +
+    "                <div class=\"spinner text-center\" ng-show=\"loading\">\n" +
+    "                    <img src=\"http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif\" alt=\"Loading\" style=\"width:48px;height:48px;\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
   );
 
 }]);
