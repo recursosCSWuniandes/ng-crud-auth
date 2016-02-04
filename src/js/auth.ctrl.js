@@ -116,8 +116,6 @@
                 ).finally(function () {
                     $scope.loading = false;
                 });
-            } else {
-                self.showError("You must to enter an email address");
             }
         };
 

@@ -7,12 +7,20 @@
                     <h2 class="panel-title">Password assistance</h2>
                 </div>
                 <div class="panel-body">
+                <alert ng-messages="forgotPassform.$error" type="danger" close="" ng-hide="!forgotPassform.$error.required && !forgotPassform.email.$invalid ">
+                    <div ng-message="required">
+                        Please, Fill the required field!
+                    </div>
+                    <div ng-message="email">
+                        Your email address is invalid!
+                    </div>
+                </alert>
                     <p>Enter the email address associated with your account, then click <strong>Send Email</strong>. We'll send you a link to a page where you can easily create a new password.</p>
-                    <form name="forgotPassform" accept-charset="UTF-8" role="form">
-                        <div class="form-group">
+                    <form name="forgotPassform" accept-charset="UTF-8" role="form" ng-submit="authCtrl.forgotPass(user)">
+                        <div class="form-group" ng-class="{'has-success': forgotPassform.username.$valid && forgotPassform.name.$dirty, 'has-error': forgotPassform.name.$invalid && forgotPassform.$submitted }">
                             <input class="form-control" required ng-model="user.email" placeholder="Email" name="email" type="email">
                         </div>
-                        <input class="btn btn-lg btn-success btn-block" ng-click="authCtrl.forgotPass(user)" type="submit" value="Send Email">
+                        <input class="btn btn-lg btn-success btn-block" type="submit" value="Send Email">
                         <input class="btn btn-lg btn-default btn-block" ng-click="authCtrl.goBack()" type="submit" value="Go Back">
                     </form>
                     <div class="spinner text-center" ng-show="loading">
