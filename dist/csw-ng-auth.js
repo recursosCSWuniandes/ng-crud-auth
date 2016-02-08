@@ -285,6 +285,7 @@
                 },
                 logout: function () {
                     return $http.get(values.apiUrl+values.logoutURL).then(function () {
+                        $rootScope.$broadcast('logged-out');
                         $state.go(values.logoutRedirectState);
                     });
                 },
