@@ -95,10 +95,14 @@
             authSvc.register(newUser).then(function (data) {
                 self.showSuccess("User registered successfully");
             }, function (data) {
-                self.showError(data.data.substring(66));
+                self.showError(data.data.substring(65));
             }).finally(function () {
                 $scope.loading = false;
             });
+        };
+
+        $scope.isCheckRequired = function(newUser){
+          return !newUser;
         };
 
         this.goToForgotPass = function () {

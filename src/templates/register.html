@@ -1,23 +1,29 @@
 
 <div>
     <div class="col-md-5 col-md-offset-4">
+        <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="authCtrl.closeAlert($index)">{{alert.msg}}</alert>
         <div class="panel panel-default">
-            <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="authCtrl.closeAlert($index)">{{alert.msg}}</alert>
             <div class="panel-heading">
                 <h3 class="panel-title">Please Register</h3>
             </div>
             <div class="panel-body">
-                <alert ng-messages="loginform.$error" type="danger" close="" ng-hide="!loginform.$error.required && !loginform.$error.minlength && !loginform.email.$invalid ">
+                <div ng-messages="loginform.$error" ng-show="(loginform.$error.required || loginform.email.$invalid || loginform.$error.minlength ) && loginform.username.$touched">
                     <div ng-message="required">
-                      Please, Fill the required fields!
+                      <alert type="danger" close="">
+                          Please, Fill the required fields!
+                      </alert>
                     </div>
                     <div ng-message="minlength">
-                        Your password must be 6 and 10 characters long!
+                        <alert type="danger" close="">
+                           Your password must be 6 and 10 characters long!
+                        </alert>
                     </div>
                     <div ng-message="email">
-                        Your email address is invalid!
+                        <alert type="danger" close="">
+                            Your email address is invalid!
+                        </alert>
                     </div>
-                </alert>
+                </div>
                 <form novalidate name="loginform" accept-charset="UTF-8" role="form" ng-submit="loginform.$valid && authCtrl.register(user)">
                     <fieldset>
                     <div class="form-group" ng-class="{'has-success': loginform.username.$valid && loginform.name.$dirty, 'has-error': loginform.name.$invalid && loginform.$submitted }">
@@ -45,7 +51,7 @@
                         <!--<select class="form-control" ng-options="rol as value.label for value in roles" name="SelectRole" ng-model="user.role" required></select>-->
                         <div class="row">
                             <div class="col-xs-6" ng-repeat="(key,value) in roles">
-                                <p><strong> {{key}} </strong></p><input type="checkbox" name="roles" checklist-model="user.roles" checklist-value="key">
+                                <p><strong> {{key}} </strong></p><input ng-required="isCheckRequired(user.roles)" type="checkbox" name="roles" checklist-model="user.roles" checklist-value="key" ng-class="{'has-success': loginform.roles.$valid && loginform.roles.$dirty, 'has-error': loginform.roles.$invalid && loginform.$submitted }">
                             </div>
                         </div>
                     </div>
@@ -54,8 +60,8 @@
                     </div>
                     </fieldset>
                         <input class="btn btn-lg btn-primary btn-block" type="submit" value="Register">
-                        <input class="btn btn-lg btn-default btn-block" ng-click="authCtrl.goBack()" type="submit" value="Go Back">
                 </form>
+                        <input class="btn btn-lg btn-default btn-block" ng-click="authCtrl.goBack()" type="submit" value="Go Back">
                 <div class="spinner text-center" ng-show="loading">
                     <img src="http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif" alt="Loading" style="width:48px;height:48px;">
                 </div>
