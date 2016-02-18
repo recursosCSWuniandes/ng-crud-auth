@@ -7,7 +7,7 @@
                 <h3 class="panel-title">Please Register</h3>
             </div>
             <div class="panel-body">
-                <div ng-messages="loginform.$error" ng-show="(loginform.$error.required || loginform.email.$invalid || loginform.$error.minlength ) && loginform.username.$touched">
+                <div ng-messages="loginform.$error" ng-show="(loginform.$error.required || loginform.email.$invalid || loginform.confirmpassword.$error || loginform.$error.minlength ) && loginform.username.$touched">
                     <div ng-message="required">
                       <alert type="danger" close="">
                           Please, Fill the required fields!
@@ -23,6 +23,11 @@
                             Your email address is invalid!
                         </alert>
                     </div>
+                    <div ng-message="pattern">
+                        <alert type="danger" close="">
+                            Passwords must be equals !!
+                        </alert>
+                    </div>
                 </div>
                 <form novalidate name="loginform" accept-charset="UTF-8" role="form" ng-submit="loginform.$valid && authCtrl.register(user)">
                     <fieldset>
@@ -33,7 +38,7 @@
                         <input class="form-control" minlength="6" required ng-model="user.password" placeholder="Password" name="password" type="password" >
                     </div>
                     <div class="form-group" ng-class="{'has-success': loginform.confirmpassword.$valid && loginform.confirmpassword.$dirty, 'has-error': loginform.confirmpassword.$invalid && loginform.$submitted }">
-                        <input class="form-control" minlength="6" required ng-model="user.confirmPassword" placeholder="Confirm Password" name="confirmpassword" type="password" >
+                        <input class="form-control" minlength="6" required ng-model="user.confirmPassword" ng-pattern="{{user.password}}" placeholder="Confirm Password" name="confirmpassword" type="password" >
                     </div>
                     <div class="row">
                         <div class="form-group col-xs-6" ng-class="{'has-success': loginform.firstname.$valid && loginform.firstname.$dirty, 'has-error': loginform.firstname.$invalid && loginform.$submitted }">

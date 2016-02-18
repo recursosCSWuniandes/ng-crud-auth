@@ -27,7 +27,9 @@
                 for (var rol in $scope.roles) {
                     if (user.roles.indexOf(rol)!== -1 ) {
                         for (var menu in $scope.roles[rol])
-                            $scope.menuitems.push($scope.roles[rol][menu]);
+                            if ($scope.menuitems.indexOf($scope.roles[rol][menu]) === -1){
+                               $scope.menuitems.push($scope.roles[rol][menu])
+                            }
                     }
                 }
         };
