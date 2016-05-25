@@ -57,7 +57,7 @@ module.exports = function (grunt) {
                 }
             },
             dev: {
-                src: '<%= meta.src %>/templates/**/*.html',
+                src: '<%= meta.src %>/**/*.html',
                 dest: '<%= concat.dist.dest %>'
             }
         },
@@ -69,24 +69,6 @@ module.exports = function (grunt) {
                 src: '<%= concat.dist.dest %>',
                 dest: '<%= meta.dist %>/csw-ng-auth.min.js'
             }
-        },
-        connect: {
-            options: {
-                port: 9001,
-                // Change this to '0.0.0.0' to access the server from outside.
-                hostname: 'localhost'
-            },
-            dev: {
-                options: {
-                    base: '<%= meta.dist %>'
-                }
-            }
-        },
-        watch: {
-            js: {
-                files: ['<%= meta.src %>/**/*.js'],
-                tasks: ['dev']
-            }
         }
     });
 
@@ -95,7 +77,4 @@ module.exports = function (grunt) {
     grunt.registerTask('build', ['clean', 'concat', 'ngtemplates:dist', 'uglify']);
 
     grunt.registerTask('dev', ['clean', 'concat', 'ngtemplates:dev']);
-
-    grunt.registerTask('serve', ['dev', 'connect:dev', 'watch']);
-
 };

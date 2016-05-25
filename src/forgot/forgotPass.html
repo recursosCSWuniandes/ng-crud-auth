@@ -1,0 +1,38 @@
+<div>
+    <div class="col-md-5 col-md-offset-4">
+        <div class="col-md-12">
+        <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="authCtrl.closeAlert($index)">{{alert.msg}}</alert>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Password assistance</h2>
+                </div>
+                <div class="panel-body">
+                <div ng-messages="forgotPassform.email.$error" ng-show="(forgotPassform.$error.required || forgotPassform.email.$invalid) && forgotPassform.email.$touched">
+                    <div ng-message="required">
+                        <alert type="danger" close="">
+                           Please, Fill the required field!
+                        </alert>
+                    </div>
+                    <div ng-message="email">
+                        <alert type="danger" close="">
+                          Your email address is invalid!
+                        </alert>
+                    </div>
+                </div>
+                    <p>Enter the email address associated with your account, then click <strong>Send Email</strong>. We'll send you a link to a page where you can easily create a new password.</p>
+                    <form name="forgotPassform" accept-charset="UTF-8" role="form" ng-submit="authCtrl.forgotPass(user)">
+                        <div class="form-group" ng-class="{'has-success': forgotPassform.email.$valid, 'has-error': forgotPassform.email.$invalid}">
+                            <input class="form-control" required ng-model="user.email" placeholder="Email" name="email" type="email">
+                        </div>
+                        <input class="btn btn-lg btn-success btn-block" type="submit" value="Send Email">
+                    </form>
+                        <button class="btn btn-lg btn-default btn-block" ng-click="authCtrl.goBack()" type="button">Go Back</button>
+                    <div class="spinner text-center" ng-show="loading">
+                        <img src="http://www.lectulandia.com/wp-content/themes/ubook/images/spinner.gif" alt="Loading" style="width:48px;height:48px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
