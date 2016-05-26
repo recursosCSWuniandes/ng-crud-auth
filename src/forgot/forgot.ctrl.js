@@ -47,7 +47,7 @@
         };
 
         this.goBack = function () {
-            authSvc.goToBack();
+            authSvc.goToLogin();
         };
     }]);
 

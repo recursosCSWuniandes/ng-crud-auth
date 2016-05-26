@@ -70,7 +70,7 @@
                         $state.go(values.loginState);
                     });
                 },
-                registration: function () {
+                goToRegister: function () {
                     $state.go(values.registerState);
                 },
                 goToLogin: function () {
@@ -78,9 +78,6 @@
                 },
                 goToForgotPass: function(){
                     $state.go(values.forgotPassState);
-                },
-                goToBack: function () {
-                    $state.go(values.loginState);
                 },
                 goToSuccess: function () {
                     $state.go(values.successState);

@@ -69,7 +69,7 @@
                 return !newUser;
             };
             this.goBack = function () {
-                authSvc.goToBack();
+                authSvc.goToLogin();
             };
         }]);
 
