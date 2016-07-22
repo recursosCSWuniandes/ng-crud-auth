@@ -1,9 +1,9 @@
-<button ng-hide="isAuthenticated()" type="button" class="btn btn-default navbar-btn" ng-click="goToLogin()">
+<button id="login-btn" ng-hide="isAuthenticated()" type="button" class="btn btn-default navbar-btn" ng-click="goToLogin()">
     <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Login
 </button>
 
 <div ng-show="isAuthenticated()" class="btn-group">
-    <button type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" aria-haspopup="true"
+    <button id="menu-btn" type="button" class="btn btn-default dropdown-toggle navbar-btn" data-toggle="dropdown" aria-haspopup="true"
             aria-expanded="false">
         {{currentUser.userName}} <span class="caret"></span>
     </button>
