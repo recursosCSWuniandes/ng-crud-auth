@@ -17,8 +17,7 @@
             registerURL: 'register',
             logoutURL: 'logout',
             forgotPassURL: 'forgot',
-            meURL: 'me',
-            viewName: 'mainView'
+            meURL: 'me'
         };
 
         //Default Roles
