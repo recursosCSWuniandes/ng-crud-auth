@@ -1,6 +1,6 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model', 'ngMessages', 'ui.bootstrap']);
+    var mod = ng.module('authModule', ['ui.router', 'checklist-model', 'ngMessages', 'ui.bootstrap']);
 
     mod.config(['$stateProvider', 'authServiceProvider', function ($sp, auth) {
             var authConfig = auth.getValues();
@@ -51,16 +51,14 @@
         }]);
 
     mod.config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', '$log', '$injector', function ($q, $log, $injector) {
+            $httpProvider.interceptors.push(['$q', '$injector', function ($q, $injector) {
                     return {
                         'responseError': function (rejection) {
                             var authService = $injector.get('authService');
                             if (rejection.status === 401) {
-                                $log.debug('error 401', rejection);
                                 authService.goToLogin();
                             }
                             if (rejection.status === 403) {
-                                $log.debug('error 403', rejection);
                                 authService.goToForbidden();
                             }
                             return $q.reject(rejection);
@@ -72,7 +70,6 @@
                         response: function (res) {
                             return res;
                         }
-
                     };
                 }]);
 
@@ -81,7 +78,7 @@
                         if (response.status === 200 && response.data) {
                             $rootScope.$broadcast('logged-in', response.data);
                         }
-                    })
+                    });
                 }]);
         }]);
 })(window.angular);
@@ -97,137 +94,132 @@
 
     var mod = ng.module('authModule');
 
-    mod.controller('authController', ['$scope', '$cookies', 'authService', '$log', function ($scope, $cookies, authSvc, $log) {
-        $scope.alerts = [];
-        $scope.roles = authSvc.getRoles();
-        authSvc.userAuthenticated().then(function (data) {
-            $scope.currentUser = data.data;
-            if ($scope.currentUser !== "" && !$scope.menuitems) {
+    mod.controller('authController', ['$scope', 'authService', function ($scope, authSvc) {
+            $scope.alerts = [];
+            $scope.roles = authSvc.getRoles();
+            authSvc.userAuthenticated().then(function (data) {
+                $scope.currentUser = data.data;
+                if ($scope.currentUser !== "" && !$scope.menuitems) {
+                    $scope.setMenu($scope.currentUser);
+                }
+            });
+            $scope.loading = false;
+            $scope.$on('logged-in', function (events, user) {
+                $scope.currentUser = user;
                 $scope.setMenu($scope.currentUser);
-            }
-        });
-        $scope.loading = false;
-        $scope.$on('logged-in', function (events, user) {
-            $scope.currentUser = user;
-            $scope.setMenu($scope.currentUser);
-        });
+            });
 
-        $scope.setMenu = function (user) {
-            $scope.menuitems = [];
+            $scope.setMenu = function (user) {
+                $scope.menuitems = [];
                 for (var rol in $scope.roles) {
-                    if (user.roles.indexOf(rol)!== -1 ) {
-                        for (var menu in $scope.roles[rol])
-                            if ($scope.menuitems.indexOf($scope.roles[rol][menu]) === -1){
-                               $scope.menuitems.push($scope.roles[rol][menu])
+                    if (user.roles.indexOf(rol) !== -1) {
+                        for (var menu in $scope.roles[rol]) {
+                            if ($scope.menuitems.indexOf($scope.roles[rol][menu]) === -1) {
+                                $scope.menuitems.push($scope.roles[rol][menu]);
                             }
+                        }
                     }
                 }
-        };
+            };
 
-        $scope.isAuthenticated = function () {
-            return !!$scope.currentUser;
-        };
+            $scope.isAuthenticated = function () {
+                return !!$scope.currentUser;
+            };
 
-        //Alerts
-        this.closeAlert = function (index) {
-            $scope.alerts.splice(index, 1);
-        };
+            //Alerts
+            this.closeAlert = function (index) {
+                $scope.alerts.splice(index, 1);
+            };
 
-        function showMessage(msg, type) {
-            var types = ["info", "danger", "warning", "success"];
-            if (types.some(function (rc) {
+            function showMessage(msg, type) {
+                var types = ["info", "danger", "warning", "success"];
+                if (types.some(function (rc) {
                     return type === rc;
                 })) {
-                $scope.alerts.push({ type: type, msg: msg });
+                    $scope.alerts.push({type: type, msg: msg});
+                }
             }
-        }
 
-        this.showError = function (msg) {
-            showMessage(msg, "danger");
-        };
+            this.showError = function (msg) {
+                showMessage(msg, "danger");
+            };
 
-        this.showSuccess = function (msg) {
-            showMessage(msg, "success");
-        };
+            this.showSuccess = function (msg) {
+                showMessage(msg, "success");
+            };
 
 
-        this.login = function (user) {
+            this.login = function (user) {
+                var self = this;
+                if (user && user.userName && user.password) {
+                    $scope.loading = true;
+                    authSvc.login(user).then(function (data) {
+                    }, function (data) {
+                        self.showError(data.data);
+                    }).finally(function () {
+                        $scope.loading = false;
+                    });
+                }
+            };
+
+            $scope.logout = function () {
+                authSvc.logout().then(function () {
+                    $scope.currentUser = "";
+
+                });
+            };
+
+            this.registration = function () {
+                authSvc.registration();
+            };
+
             var self = this;
-            if (user && user.userName && user.password) {
+            this.register = function (newUser) {
                 $scope.loading = true;
-                authSvc.login(user).then(function (data) {
+                authSvc.register(newUser).then(function (data) {
+                    self.showSuccess("User registered successfully");
                 }, function (data) {
-                    self.showError(data.data);
-                    $log.error("Error", data);
+                    self.showError(data.data.substring(65));
                 }).finally(function () {
                     $scope.loading = false;
                 });
-            }
-        };
+            };
 
-        $scope.logout = function () {
-            authSvc.logout().then(function () {
-                $scope.currentUser = "";
+            $scope.isCheckRequired = function (newUser) {
+                return !newUser;
+            };
 
-            });
-        };
+            this.goToForgotPass = function () {
+                authSvc.goToForgotPass();
+            };
 
-        $scope.log = function (obj) {
-            $log.debug(obj);
-        };
-
-
-        this.registration = function () {
-            authSvc.registration();
-        };
-
-        var self = this;
-        this.register = function (newUser) {
-            $scope.loading = true;
-            authSvc.register(newUser).then(function (data) {
-                self.showSuccess("User registered successfully");
-            }, function (data) {
-                self.showError(data.data.substring(65));
-            }).finally(function () {
-                $scope.loading = false;
-            });
-        };
-
-        $scope.isCheckRequired = function(newUser){
-          return !newUser;
-        };
-
-        this.goToForgotPass = function () {
-            authSvc.goToForgotPass();
-        };
-
-        this.forgotPass = function (user) {
-            var self = this;
-            if (user) {
-                $scope.loading = true;
-                authSvc.forgotPass(user).then(function (data) {
+            this.forgotPass = function (user) {
+                var self = this;
+                if (user) {
+                    $scope.loading = true;
+                    authSvc.forgotPass(user).then(function (data) {
                     }, function (data) {
                         self.showError(data.data.substring(66));
                     }
-                ).finally(function () {
-                    $scope.loading = false;
-                });
-            }
-        };
+                    ).finally(function () {
+                        $scope.loading = false;
+                    });
+                }
+            };
 
 
-        $scope.goToLogin = function () {
-            authSvc.goToLogin();
-        };
+            $scope.goToLogin = function () {
+                authSvc.goToLogin();
+            };
 
-        this.goBack = function () {
-            authSvc.goToBack();
-        };
+            this.goBack = function () {
+                authSvc.goToBack();
+            };
 
-        $scope.goToSuccess = function () {
-            authSvc.goToSuccess();
-        };
-    }]);
+            $scope.goToSuccess = function () {
+                authSvc.goToSuccess();
+            };
+        }]);
 
 })(window.angular);
 
@@ -293,7 +285,7 @@
             roles = newRoles;
         };
 
-        this.$get = ['$cookies', '$state', '$http','$rootScope','$log', function ($cookies, $state, $http, $rootScope, $log) {
+        this.$get = ['$state', '$http','$rootScope', function ($state, $http, $rootScope) {
             return {
                 getRoles: function(){
                     return roles;
@@ -301,7 +293,6 @@
                 login: function (user) {
                     return $http.post(values.apiUrl+values.loginURL, user).then(function (response) {
                         $rootScope.$broadcast('logged-in', response.data);
-                        $log.debug("user", response.data);
                         $state.go(values.successState);
                     });
                 },

@@ -1,6 +1,6 @@
 (function (ng) {
 
-    var mod = ng.module('authModule', ['ngCookies', 'ui.router', 'checklist-model', 'ngMessages', 'ui.bootstrap']);
+    var mod = ng.module('authModule', ['ui.router', 'checklist-model', 'ngMessages', 'ui.bootstrap']);
 
     mod.config(['$stateProvider', 'authServiceProvider', function ($sp, auth) {
             var authConfig = auth.getValues();
@@ -51,16 +51,14 @@
         }]);
 
     mod.config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', '$log', '$injector', function ($q, $log, $injector) {
+            $httpProvider.interceptors.push(['$q', '$injector', function ($q, $injector) {
                     return {
                         'responseError': function (rejection) {
                             var authService = $injector.get('authService');
                             if (rejection.status === 401) {
-                                $log.debug('error 401', rejection);
                                 authService.goToLogin();
                             }
                             if (rejection.status === 403) {
-                                $log.debug('error 403', rejection);
                                 authService.goToForbidden();
                             }
                             return $q.reject(rejection);
@@ -72,7 +70,6 @@
                         response: function (res) {
                             return res;
                         }
-
                     };
                 }]);
 
@@ -81,7 +78,7 @@
                         if (response.status === 200 && response.data) {
                             $rootScope.$broadcast('logged-in', response.data);
                         }
-                    })
+                    });
                 }]);
         }]);
 })(window.angular);
